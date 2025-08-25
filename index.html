@@ -1001,7 +1001,7 @@
             const currentDate = new Date();
             const formattedDate = `${currentDate.getDate()}-${currentDate.getMonth() + 1}-${currentDate.getFullYear()}`;
             
-            fetch(`http://api.aladhan.com/v1/gToH/${formattedDate}`)
+            fetch(`https://api.aladhan.com/v1/gToH/${formattedDate}`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.code === 200) {
@@ -1083,7 +1083,7 @@
                 const hour = parseInt(hours);
                 const period = hour >= 12 ? 'م' : 'ص';
                 const formattedHour = hour % 12 || 12;
-                const arabicTime = `${formattedHour}:${minutes} ${period}`.replace(/\d/g, d => "٠١٢٣٤٥٦٧٨٩"[d]);
+                const arabicTime = timeString.replace(/[٠-٩]/g, d => "0123456789"["٠١٢٣٤٥٦٧٨٩".indexOf(d)]);
                 
                 timeItem.textContent = `${prayer.name}: ${arabicTime}`;
                 prayerTimesElement.appendChild(timeItem);
