@@ -115,6 +115,12 @@
             line-height: 1.6;
         }
 
+        .developer {
+            margin-top: 5px;
+            font-size: 0.8rem;
+            color: #a3d39d;
+        }
+
         .container {
             max-width: 1200px;
             margin: 180px auto 70px auto;
@@ -578,7 +584,7 @@
     <header>
         <div class="header-top">
             <div class="date-time-container">
-                <div class="hijri-date" id="hijri-date">التاريخ الهجري: ١٤٤٥/٠٥/١٥</div>
+                <div class="hijri-date" id="hijri-date">التاريخ الهجري: 1445/05/15</div>
                 <div class="gregorian-date" id="gregorian-date">التاريخ الميلادي: 2023/12/27</div>
                 <div class="current-time" id="current-time">12:30:45</div>
             </div>
@@ -691,8 +697,9 @@
     </div>
 
     <footer>
-        <p>جميع الحقوق محفوظة © 2025 | بوابة المسلم - GT-muslimportal</p>
-        <p>صمم بحب <span style="color: #ff5252;">♥️</span> لخدمة المسلمين حول العالم</p>
+        <p>جميع الحقوق محفوظة © 2025 | بوابة المسلم - GT-MUSLIMPORTAL</p>
+        <p>صمم بحب <span style="color: #ff5252;">♥️</span> لخدمة القرآن الكريم والحديث النبوي</p>
+        <p class="developer">تم التطوير بواسطة: GNUTUX</p>
     </footer>
 
     <!-- نافذة إعدادات الإخطارات -->
@@ -820,7 +827,7 @@
             saveSettingsBtn.addEventListener('click', saveServiceSettings);
 
             searchInput.addEventListener('input', filterServices);
-
+            
             webSearchBtn.addEventListener('click', performWebSearch);
             searchHeaderInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
@@ -841,22 +848,28 @@
         // تحديث الوقت والتاريخ
         function updateDateTime() {
             const now = new Date();
-
+            
             // الوقت الحالي
-            const timeString = now.toLocaleTimeString('ar-SA');
+            const timeString = now.toLocaleTimeString('ar-SA', {
+                hour12: true,
+                hour: 'numeric',
+                minute: 'numeric',
+                second: 'numeric'
+            });
             currentTimeElement.textContent = timeString;
-
-            // التاريخ الميلادي
+            
+            // التاريخ الميلادي (باستخدام الأرقام العربية)
             const gregorianDate = now.toLocaleDateString('ar-SA', {
                 year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                weekday: 'long'
-            });
+                month: 'numeric',
+                day: 'numeric'
+            }).replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d));
             gregorianDateElement.textContent = `التاريخ الميلادي: ${gregorianDate}`;
-
+            
             // التاريخ الهجري (سيتم تحديثه من API لاحقًا)
             // حالياً نعرض تاريخ افتراضي
+            const hijriDate = "1445/05/15";
+            hijriDateElement.textContent = `التاريخ الهجري: ${hijriDate}`;
         }
 
         // جلب أوقات الصلاة من API
@@ -865,7 +878,7 @@
             const latitude = 21.4225;
             const longitude = 39.8262;
             const method = 4; // طريقة حساب Umm Al-Qura University
-
+            
             fetch(`https://api.aladhan.com/v1/timings?latitude=${latitude}&longitude=${longitude}&method=${method}`)
                 .then(response => response.json())
                 .then(data => {
@@ -883,7 +896,7 @@
         function updatePrayerTimes(timings) {
             const prayerTimesElement = document.getElementById('prayer-times');
             prayerTimesElement.innerHTML = '';
-
+            
             const prayers = [
                 { name: 'الفجر', time: timings.Fajr, key: 'Fajr' },
                 { name: 'الشروق', time: timings.Sunrise, key: 'Sunrise' },
@@ -892,7 +905,7 @@
                 { name: 'المغرب', time: timings.Maghrib, key: 'Maghrib' },
                 { name: 'العشاء', time: timings.Isha, key: 'Isha' }
             ];
-
+            
             prayers.forEach(prayer => {
                 const timeItem = document.createElement('div');
                 timeItem.className = 'prayer-time-item';
@@ -900,7 +913,7 @@
                 timeItem.textContent = `${prayer.name}: ${formatPrayerTime(prayer.time)}`;
                 prayerTimesElement.appendChild(timeItem);
             });
-
+            
             // تحديد الصلاة الحالية
             highlightCurrentPrayer(timings);
         }
@@ -918,7 +931,7 @@
         function highlightCurrentPrayer(timings) {
             const now = new Date();
             const currentTime = now.getHours() * 60 + now.getMinutes();
-
+            
             const prayerTimes = [
                 { key: 'Fajr', time: convertTimeToMinutes(timings.Fajr) },
                 { key: 'Dhuhr', time: convertTimeToMinutes(timings.Dhuhr) },
@@ -926,10 +939,10 @@
                 { key: 'Maghrib', time: convertTimeToMinutes(timings.Maghrib) },
                 { key: 'Isha', time: convertTimeToMinutes(timings.Isha) }
             ];
-
+            
             let currentPrayer = null;
             let nextPrayer = null;
-
+            
             for (let i = 0; i < prayerTimes.length; i++) {
                 if (currentTime < prayerTimes[i].time) {
                     nextPrayer = prayerTimes[i].key;
@@ -939,18 +952,18 @@
                     break;
                 }
             }
-
+            
             // إذا لم نجد صلاة قادمة، فإن الصلاة الحالية هي العشاء والصلاة القادمة هي الفجر في اليوم التالي
             if (!nextPrayer) {
                 currentPrayer = 'Isha';
                 nextPrayer = 'Fajr';
             }
-
+            
             // إزالة التمييز من جميع الصلوات
             document.querySelectorAll('.prayer-time-item').forEach(item => {
                 item.classList.remove('current-prayer');
             });
-
+            
             // تمييز الصلاة الحالية إذا وجدت
             if (currentPrayer) {
                 const currentPrayerElement = document.getElementById(`prayer-${currentPrayer}`);
@@ -972,7 +985,7 @@
             const latitude = 21.4225;
             const longitude = 39.8262;
             const apiKey = 'your_openweather_api_key'; // يجب استبدالها بمفتاح API الحقيقي
-
+            
             fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=metric&lang=ar`)
                 .then(response => response.json())
                 .then(data => {
@@ -986,7 +999,7 @@
         // تحديث عرض بيانات الطقس
         function updateWeather(weatherData) {
             const weatherInfoElement = document.getElementById('weather-info');
-
+            
             if (weatherData && weatherData.main) {
                 weatherInfoElement.innerHTML = `
                     <div class="weather-item">
@@ -1028,19 +1041,19 @@
         function updateAzkar(azkarContent) {
             const azkarListElement = document.getElementById('azkar-list');
             azkarListElement.innerHTML = '';
-
+            
             const azkarItem = document.createElement('div');
             azkarItem.className = 'azkar-item';
             azkarItem.innerHTML = `<p>${azkarContent}</p>`;
             azkarListElement.appendChild(azkarItem);
-
+            
             // إضافة أذكار إضافية (يمكن جلبها من مصادر أخرى)
             const additionalAzkar = [
                 "أستغفر الله العظيم الذي لا إله إلا هو الحي القيوم وأتوب إليه",
                 "سبحان الله وبحمده، سبحان الله العظيم",
                 "لا إله إلا الله وحده لا شريك له، له الملك وله الحمد وهو على كل شيء قدير"
             ];
-
+            
             additionalAzkar.forEach(zekr => {
                 const azkarItem = document.createElement('div');
                 azkarItem.className = 'azkar-item';
@@ -1054,7 +1067,7 @@
             const modalTitle = document.getElementById('notification-modal-title');
             let title = '';
             let settingsHTML = '';
-
+            
             switch(service) {
                 case 'prayer':
                     title = 'إخطارات أوقات الصلاة';
@@ -1076,6 +1089,13 @@
                         <div class="form-group">
                             <label>تحديد الوقت يدوياً</label>
                             <input type="number" class="form-control" id="prayer-custom-time" placeholder="عدد الدقائق قبل الصلاة" min="1" max="60">
+                        </div>
+                        <div class="form-group">
+                            <label>طريقة عرض الوقت</label>
+                            <select class="form-control" id="time-format">
+                                <option value="12">12 ساعة (ص/م)</option>
+                                <option value="24">24 ساعة</option>
+                            </select>
                         </div>
                     `;
                     break;
@@ -1119,7 +1139,7 @@
                     `;
                     break;
             }
-
+            
             modalTitle.textContent = title;
             notificationSettings.innerHTML = settingsHTML;
             notificationModal.style.display = 'flex';
@@ -1130,7 +1150,7 @@
             const modalTitle = document.getElementById('settings-modal-title');
             let title = '';
             let settingsHTML = '';
-
+            
             switch(service) {
                 case 'prayer':
                     title = 'إعدادات أوقات الصلاة';
@@ -1183,7 +1203,7 @@
                             <button class="btn btn-sm" id="add-azkar-btn" style="margin-top: 10px;"><i class="fas fa-plus"></i> إضافة</button>
                         </div>
                         <div class="custom-azkar">
-                            <h4>الأذكار المضافة يدوياً</h4>
+                            <h4>الأذكار المضافة يدوياً</div>
                             <div class="custom-azkar-list" id="custom-azkar-list">
                                 <!-- سيتم ملؤها ديناميكياً -->
                             </div>
@@ -1191,21 +1211,21 @@
                     `;
                     break;
             }
-
+            
             modalTitle.textContent = title;
             document.getElementById('settings-content').innerHTML = settingsHTML;
             settingsModal.style.display = 'flex';
-
+            
             // إضافة event listeners خاصة بكل خدمة
             if (service === 'azkar') {
                 document.getElementById('add-azkar-btn').addEventListener('click', addCustomAzkar);
                 loadCustomAzkar();
             }
-
+            
             if (service === 'prayer') {
                 document.getElementById('prayer-location-auto').addEventListener('click', getLocationForPrayer);
             }
-
+            
             if (service === 'weather') {
                 document.getElementById('weather-location-auto').addEventListener('click', getLocationForWeather);
             }
@@ -1218,7 +1238,7 @@
                     position => {
                         const latitude = position.coords.latitude;
                         const longitude = position.coords.longitude;
-
+                        
                         // استخدام خدمة عكسية للجيو-كودينج للحصول على اسم المدينة
                         fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=ar`)
                             .then(response => response.json())
@@ -1247,7 +1267,7 @@
                     position => {
                         const latitude = position.coords.latitude;
                         const longitude = position.coords.longitude;
-
+                        
                         // استخدام خدمة عكسية للجيو-كودينج للحصول على اسم المدينة
                         fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=ar`)
                             .then(response => response.json())
@@ -1273,12 +1293,12 @@
         function addCustomAzkar() {
             const newAzkarInput = document.getElementById('new-azkar');
             const azkarText = newAzkarInput.value.trim();
-
+            
             if (azkarText) {
                 let customAzkar = JSON.parse(localStorage.getItem('customAzkar') || '[]');
                 customAzkar.push(azkarText);
                 localStorage.setItem('customAzkar', JSON.stringify(customAzkar));
-
+                
                 newAzkarInput.value = '';
                 loadCustomAzkar();
             }
@@ -1288,14 +1308,14 @@
         function loadCustomAzkar() {
             const customAzkarList = document.getElementById('custom-azkar-list');
             const customAzkar = JSON.parse(localStorage.getItem('customAzkar') || '[]');
-
+            
             customAzkarList.innerHTML = '';
-
+            
             if (customAzkar.length === 0) {
                 customAzkarList.innerHTML = '<p style="text-align: center; padding: 10px;">لا توجد أذكار مضافة</p>';
                 return;
             }
-
+            
             customAzkar.forEach((azkar, index) => {
                 const azkarItem = document.createElement('div');
                 azkarItem.className = 'custom-azkar-item';
@@ -1305,7 +1325,7 @@
                 `;
                 customAzkarList.appendChild(azkarItem);
             });
-
+            
             // إضافة event listeners لأزرار الحذف
             document.querySelectorAll('.remove-azkar').forEach(button => {
                 button.addEventListener('click', (e) => {
@@ -1353,12 +1373,12 @@
             if (savedPrayerSettings) {
                 // تطبيق إعدادات الصلاة
             }
-
+            
             const savedWeatherSettings = localStorage.getItem('weatherSettings');
             if (savedWeatherSettings) {
                 // تطبيق إعدادات الطقس
             }
-
+            
             const savedAzkarSettings = localStorage.getItem('azkarSettings');
             if (savedAzkarSettings) {
                 // تطبيق إعدادات الأذكار
@@ -1368,11 +1388,11 @@
         // تصفية الخدمات عند البحث
         function filterServices() {
             const searchTerm = searchInput.value.toLowerCase();
-
+            
             serviceCards.forEach(card => {
                 const title = card.querySelector('.service-title').textContent.toLowerCase();
                 const content = card.querySelector('.service-content').textContent.toLowerCase();
-
+                
                 if (title.includes(searchTerm) || content.includes(searchTerm)) {
                     card.style.display = 'block';
                 } else {
@@ -1381,11 +1401,11 @@
             });
         }
 
-        // البحث على الإنترنت
+        // البحث على الإنترنت باستخدام Brave Search
         function performWebSearch() {
             const searchTerm = searchHeaderInput.value.trim();
             if (searchTerm) {
-                window.open(`https://www.google.com/search?q=${encodeURIComponent(searchTerm)}`, '_blank');
+                window.open(`https://search.brave.com/search?q=${encodeURIComponent(searchTerm)}`, '_blank');
             }
         }
 
