@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌙</text></svg>">
     <style>
+        /* جميع أنماط CSS تبقى كما هي بدون تغيير */
         :root {
             --primary-color: #2d5a27;
             --secondary-color: #1a2a6c;
@@ -1099,7 +1100,7 @@
         // إعدادات التطبيق
         const DEFAULT_CITY = "الرباط";
         const DEFAULT_COUNTRY = "المغرب";
-        const DEFAULT_METHOD = 4; // Umm Al-Qura University
+        let DEFAULT_METHOD = 4; // Umm Al-Qura University
         let currentService = "";
         let lastScrollTop = 0;
         let isHeaderHidden = false;
@@ -1110,7 +1111,7 @@
     "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ، لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ (مرة واحدة)",
     "اللَّهُمَّ مَا أَصْبَحَ بِي مِنْ نِعْمَةٍ أَوْ بِأَحَدٍ مِنْ خَلْقِكَ فَمِنْكَ وَحْدَكَ لَا شَرِيكَ لَكَ، فَلَكَ الْحَمْدُ وَلَكَ الشُّكْرُ (مرة واحدة)",
     "حَسْبِيَ اللَّهُ لَا إِلَهَ إِلَّا هُوَ، عَلَيْهِ تَوَكَّلْتُ وَهُوَ رَبُّ الْعَرْشِ الْعَظِيمِ (7 مرات)",
-    "بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ وَهُوَ السَّمِيعُ الْعَلِيمُ (3 مرات)",
+    "بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ وَهُوَ السَّمِيعُ الْعََلِيمُ (3 مرات)",
     "اللَّهُمَّ بِكَ أَصْبَحْنَا، وَبِكَ أَمْسَيْنَا، وَبِكَ نَحْيَا، وَبِكَ نَمُوتُ، وَإِلَيْكَ النُّشُورُ (مرة واحدة)",
     "أَعُوذُ بِكَلِمَاتِ اللَّهِ التَّامَّاتِ مِنْ شَرِّ مَا خَلَقَ (3 مرات)",
     "اللَّهُمَّ إِنِّي أَصْبَحْتُ أُشْهِدُكَ، وَأُشْهِدُ حَمَلَةَ عَرْشِكَ، وَمَلَائِكَتَكَ، وَجَمِيعَ خَلْقِكَ، أَنَّكَ أَنْتَ اللَّهُ لَا إِلَهَ إِلَّا أَنْتَ وَحْدَكَ لَا شَرِيكَ لَكَ، وَأَنَّ مُحَمَّدًا عَبْدُكَ وَرَسُولُكَ (4 مرات)",
@@ -1140,16 +1141,13 @@
     "اللَّهُمَّ إِنَّا نَسْأَلُكَ فِي سَفَرِنَا هَذَا الْبِرَّ وَالتَّقْوَى، وَمِنَ الْعَمَلِ مَا تَرْضَى...",
 
     // 🤲 أدعية عامة
-    "رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ",
+    "رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةَ حَسَنَةً وَقِنَا عَذَابَ النَّارِ",
     "رَبِّ اغْفِرْ لِي وَلِوَالِدَيَّ وَلِلْمُؤْمِنِينَ يَوْمَ يَقُومُ الْحِسَابُ",
     "اللَّهُمَّ اغْفِرْ لِي خَطِيئَتِي وَجَهْلِي، وَإِسْرَافِي فِي أَمْرِي، وَمَا أَنْتَ أَعْلَمُ بِهِ مِنِّي",
     "اللَّهُمَّ أَعِنِّي عَلَى ذِكْرِكَ وَشُكْرِكَ وَحُسْنِ عِبَادَتِكَ",
     "اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنْ زَوَالِ نِعْمَتِكَ، وَتَحَوُّلِ عَافِيَتِكَ، وَفُجَاءَةِ نِقْمَتِكَ، وَجَمِيعِ سَخَطِكَ",
     "اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْبُخْلِ، وَأَعُوذُ بِكَ مِنَ الْجُبْنِ، وَأَعُوذُ بِكَ أَنْ أُرَدَّ إِلَى أَرْذَلِ الْعُمُرِ، وَأَعُوذُ بِكَ مِنْ فِتْنَةِ الدُّنْيَا وَعَذَابِ الْقَبْرِ"
-
-    // ... يمكنك إضافة المزيد بسهولة
 ];
-
 
         // متغيرات عامة للأذونات والموقع
         let userLocation = null;
@@ -1280,7 +1278,7 @@
             if (permissionsStatus.notifications && Notification.permission === 'granted') {
                 const notification = new Notification(title, {
                     body: body,
-                    icon: `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">${icon}</text></svg>`,
+                    icon: `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>${icon}</text></svg>`,
                     tag: tag,
                     requireInteraction: false
                 });
@@ -1397,6 +1395,89 @@
                 mainHeader.classList.toggle('hidden');
                 isHeaderHidden = mainHeader.classList.contains('hidden');
             });
+
+            // إضافة مستمعي أحداث لأزرار التحديد التلقائي
+            document.addEventListener('click', function(e) {
+                if (e.target.id === 'prayer-location-auto' || e.target.closest('#prayer-location-auto')) {
+                    getLocationForPrayer();
+                }
+                if (e.target.id === 'weather-location-auto' || e.target.closest('#weather-location-auto')) {
+                    getLocationForWeather();
+                }
+            });
+        }
+
+        // أضف هذه الدوال الجديدة للحصول على الموقع
+        function getLocationForPrayer() {
+            if ('geolocation' in navigator) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        userLocation = {
+                            latitude: position.coords.latitude,
+                            longitude: position.coords.longitude
+                        };
+
+                        // حفظ الموقع في localStorage
+                        const permissions = JSON.parse(localStorage.getItem('app_permissions') || '{}');
+                        permissions.geolocation = true;
+                        permissions.location_data = userLocation;
+                        localStorage.setItem('app_permissions', JSON.stringify(permissions));
+
+                        // تحديث واجهة المستخدم
+                        if (document.getElementById('prayer-location')) {
+                            document.getElementById('prayer-location').value = "موقعك الحالي";
+                        }
+
+                        // إعادة تحميل أوقات الصلاة
+                        fetchPrayerTimes();
+
+                        // إظهار رسالة نجاح
+                        alert('✅ تم تحديد موقعك بنجاح! سيتم استخدام موقعك الحالي لأوقات الصلاة.');
+                    },
+                    (error) => {
+                        console.error('Error getting location:', error);
+                        alert('❌ تعذر الحصول على موقعك. تأكد من تفعيل خدمة الموقع في متصفحك.');
+                    }
+                );
+            } else {
+                alert('❌ المتصفح لا يدعم خدمة الموقع.');
+            }
+        }
+
+        function getLocationForWeather() {
+            if ('geolocation' in navigator) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        userLocation = {
+                            latitude: position.coords.latitude,
+                            longitude: position.coords.longitude
+                        };
+
+                        // حفظ الموقع في localStorage
+                        const permissions = JSON.parse(localStorage.getItem('app_permissions') || '{}');
+                        permissions.geolocation = true;
+                        permissions.location_data = userLocation;
+                        localStorage.setItem('app_permissions', JSON.stringify(permissions));
+
+                        // تحديث واجهة المستخدم
+                        if (document.getElementById('weather-location')) {
+                            document.getElementById('weather-location').value = "موقعك الحالي";
+                        }
+
+                        // إعادة تحميل بيانات الطقس
+                        fetchWeatherWithLocation();
+
+                        // إظهار رسالة نجاح
+                        alert('✅ تم تحديد موقعك بنجاح! سيتم استخدام موقعك الحالي للطقس.');
+                    },
+                    (error) => {
+                        console.error('Error getting location:', error);
+                        alert('❌ تعذر الحصول على موقعك. تأكد من تفعيل خدمة الموقع في متصفحك.');
+                    }
+                );
+            } else {
+                alert('❌ المتصفح لا يدعم خدمة الموقع.');
+            }
         }
 
         // تحويل الأرقام المشرقية إلى عربية
@@ -1529,6 +1610,10 @@ function updateDateTime() {
 
         // جلب أوقات الصلاة من API
         function fetchPrayerTimes() {
+            // تحميل الإعدادات المحفوظة
+            const savedPrayerSettings = JSON.parse(localStorage.getItem('prayer_settings') || '{}');
+            const method = savedPrayerSettings.method || DEFAULT_METHOD;
+
             const currentDate = new Date();
             const formattedDate = `${currentDate.getDate()}-${currentDate.getMonth() + 1}-${currentDate.getFullYear()}`;
 
@@ -1545,11 +1630,15 @@ function updateDateTime() {
 
             if (userLocation && permissionsStatus.geolocation) {
                 // استخدام الإحداثيات الحقيقية
-                apiUrl = `https://api.aladhan.com/v1/timings/${formattedDate}?latitude=${userLocation.latitude}&longitude=${userLocation.longitude}&method=${DEFAULT_METHOD}`;
+                apiUrl = `https://api.aladhan.com/v1/timings/${formattedDate}?latitude=${userLocation.latitude}&longitude=${userLocation.longitude}&method=${method}`;
                 locationText = "موقعك الحالي";
             } else {
-                // استخدام الموقع الافتراضي
-                apiUrl = `https://api.aladhan.com/v1/timingsByCity/${formattedDate}?city=${encodeURIComponent(DEFAULT_CITY)}&country=${encodeURIComponent(DEFAULT_COUNTRY)}&method=${DEFAULT_METHOD}`;
+                // استخدام الموقع الافتراضي أو المحفوظ
+                const location = savedPrayerSettings.location || DEFAULT_CITY;
+                const country = DEFAULT_COUNTRY; // يمكن إضافة خيار لتحديد البلد لاحقاً
+
+                apiUrl = `https://api.aladhan.com/v1/timingsByCity/${formattedDate}?city=${encodeURIComponent(location)}&country=${encodeURIComponent(country)}&method=${method}`;
+                locationText = `${location}, ${country}`;
             }
 
             fetch(apiUrl)
@@ -1589,6 +1678,10 @@ function updateDateTime() {
 
             prayerTimesElement.innerHTML = '';
 
+            // تحميل إعدادات تنسيق الوقت
+            const savedPrayerSettings = JSON.parse(localStorage.getItem('prayer_settings') || '{}');
+            const timeFormat = savedPrayerSettings.timeFormat || '12';
+
             const prayers = [
                 { name: '🌅 الفجر', time: timings.Fajr, key: 'Fajr' },
                 { name: '🌞 الشروق', time: timings.Sunrise, key: 'Sunrise' },
@@ -1603,13 +1696,22 @@ function updateDateTime() {
                 timeItem.className = 'prayer-time-item';
                 timeItem.id = `prayer-${prayer.key}`;
 
-                // تحويل الوقت إلى تنسيق 12 ساعة مع الأرقام العربية
+                // تحويل الوقت حسب التنسيق المحفوظ
                 const [hours, minutes] = prayer.time.split(':');
-                const hour = parseInt(hours);
-                const period = hour >= 12 ? 'م' : 'ص';
-                const formattedHour = hour % 12 || 12;
-                const arabicTime = convertToArabicDigits(`${formattedHour}:${minutes} ${period}`);
+                let timeString;
 
+                if (timeFormat === '24') {
+                    // تنسيق 24 ساعة
+                    timeString = `${hours}:${minutes}`;
+                } else {
+                    // تنسيق 12 ساعة (افتراضي)
+                    const hour = parseInt(hours);
+                    const period = hour >= 12 ? 'م' : 'ص';
+                    const formattedHour = hour % 12 || 12;
+                    timeString = `${formattedHour}:${minutes} ${period}`;
+                }
+
+                const arabicTime = convertToArabicDigits(timeString);
                 timeItem.textContent = `${prayer.name}: ${arabicTime}`;
                 prayerTimesElement.appendChild(timeItem);
             });
@@ -2178,6 +2280,9 @@ function updateDateTime() {
             let title = '';
             let settingsHTML = '';
 
+            // تحميل الإعدادات المحفوظة
+            const savedSettings = JSON.parse(localStorage.getItem(`${service}_settings`) || '{}');
+
             switch(service) {
                 case 'prayer':
                     title = 'إعدادات أوقات الصلاة';
@@ -2185,20 +2290,20 @@ function updateDateTime() {
                         <div class="form-group">
                             <label>الموقع الجغرافي</label>
                             <div class="location-settings">
-                                <input type="text" class="form-control" id="prayer-location" placeholder="اسم المدينة" value="${DEFAULT_CITY}">
+                                <input type="text" class="form-control" id="prayer-location" placeholder="اسم المدينة" value="${savedSettings.location || DEFAULT_CITY}">
                                 <button class="location-auto" id="prayer-location-auto"><i class="fas fa-location-arrow"></i> التحديد التلقائي</button>
                             </div>
                         </div>
                         <div class="form-group">
                             <label>طريقة الحساب</label>
                             <select class="form-control" id="prayer-method">
-                                <option value="1">جامعة العلوم الإسلامية (كراتشي)</option>
-                                <option value="2">الهيئة العامة للمساحة المصرية</option>
-                                <option value="3">رابطة العالم الإسلامي</option>
-                                <option value="4" selected>أم القرى (مكة المكرمة)</option>
-                                <option value="5">الإمارات العربية المتحدة</option>
-                                <option value="6">الجزائر، المغرب، تونس</option>
-                                <option value="26">المغرب</option>
+                                <option value="1" ${savedSettings.method == 1 ? 'selected' : ''}>جامعة العلوم الإسلامية (كراتشي)</option>
+                                <option value="2" ${savedSettings.method == 2 ? 'selected' : ''}>الهيئة العامة للمساحة المصرية</option>
+                                <option value="3" ${savedSettings.method == 3 ? 'selected' : ''}>رابطة العالم الإسلامي</option>
+                                <option value="4" ${savedSettings.method == 4 || !savedSettings.method ? 'selected' : ''}>أم القرى (مكة المكرمة)</option>
+                                <option value="5" ${savedSettings.method == 5 ? 'selected' : ''}>الإمارات العربية المتحدة</option>
+                                <option value="6" ${savedSettings.method == 6 ? 'selected' : ''}>الجزائر، المغرب، تونس</option>
+                                <option value="26" ${savedSettings.method == 26 ? 'selected' : ''}>المغرب</option>
                             </select>
                         </div>
                     `;
@@ -2209,15 +2314,15 @@ function updateDateTime() {
                         <div class="form-group">
                             <label>الموقع الجغرافي</label>
                             <div class="location-settings">
-                                <input type="text" class="form-control" id="weather-location" placeholder="اسم المدينة" value="${DEFAULT_CITY}">
+                                <input type="text" class="form-control" id="weather-location" placeholder="اسم المدينة" value="${savedSettings.location || DEFAULT_CITY}">
                                 <button class="location-auto" id="weather-location-auto"><i class="fas fa-location-arrow"></i> التحديد التلقائي</button>
                             </div>
                         </div>
                         <div class="form-group">
                             <label>وحدات القياس</label>
                             <select class="form-control" id="weather-units">
-                                <option value="metric">مئوية (°م)</option>
-                                <option value="imperial">فهرنهايت (°ف)</option>
+                                <option value="metric" ${savedSettings.units === 'metric' || !savedSettings.units ? 'selected' : ''}>مئوية (°م)</option>
+                                <option value="imperial" ${savedSettings.units === 'imperial' ? 'selected' : ''}>فهرنهايت (°ف)</option>
                             </select>
                         </div>
                     `;
@@ -2248,14 +2353,6 @@ function updateDateTime() {
             if (service === 'azkar') {
                 document.getElementById('add-azkar-btn').addEventListener('click', addCustomAzkar);
                 loadCustomAzkar();
-            }
-
-            if (service === 'prayer') {
-                document.getElementById('prayer-location-auto').addEventListener('click', getLocationForPrayer);
-            }
-
-            if (service === 'weather') {
-                document.getElementById('weather-location-auto').addEventListener('click', getLocationForWeather);
             }
         }
 
@@ -2296,10 +2393,75 @@ function updateDateTime() {
 
         // حفظ إعدادات الخدمات
         function saveServiceSettings() {
-            // هنا سيتم حفظ إعدادات الخدمات في localStorage
+            if (currentService === 'prayer') {
+                const locationInput = document.getElementById('prayer-location');
+                const methodSelect = document.getElementById('prayer-method');
+                const timeFormatSelect = document.getElementById('time-format');
+                const athanSoundSelect = document.getElementById('athan-sound');
+
+                const savedPrayerSettings = {
+                    location: locationInput ? locationInput.value : DEFAULT_CITY,
+                    method: methodSelect ? methodSelect.value : DEFAULT_METHOD,
+                    timeFormat: timeFormatSelect ? timeFormatSelect.value : '12',
+                    athanSound: athanSoundSelect ? athanSoundSelect.value : 'default',
+                    // إضافة الإعدادات الأخرى إذا كانت موجودة
+                    prayerTimeNotification: document.getElementById('prayer-time-notification') ?
+                        document.getElementById('prayer-time-notification').checked : false,
+                    prayerBeforeNotification: document.getElementById('prayer-before-notification') ?
+                        document.getElementById('prayer-before-notification').checked : false,
+                    prayerCustomTime: document.getElementById('prayer-custom-time') ?
+                        parseInt(document.getElementById('prayer-custom-time').value) || 5 : 5
+                };
+
+                localStorage.setItem('prayer_settings', JSON.stringify(savedPrayerSettings));
+
+                // إعادة تحميل أوقات الصلاة مع الإعدادات الجديدة
+                fetchPrayerTimes();
+            }
+
+            if (currentService === 'weather') {
+                const locationInput = document.getElementById('weather-location');
+                const unitsSelect = document.getElementById('weather-units');
+
+                const savedWeatherSettings = {
+                    location: locationInput ? locationInput.value : DEFAULT_CITY,
+                    units: unitsSelect ? unitsSelect.value : 'metric',
+                    // إضافة الإعدادات الأخرى إذا كانت موجودة
+                    weatherNotification: document.getElementById('weather-notification') ?
+                        document.getElementById('weather-notification').checked : false,
+                    weatherInterval: document.getElementById('weather-interval') ?
+                        parseInt(document.getElementById('weather-interval').value) || 60 : 60
+                };
+
+                localStorage.setItem('weather_settings', JSON.stringify(savedWeatherSettings));
+
+                // إعادة تحميل بيانات الطقس مع الإعدادات الجديدة
+                if (userLocation && permissionsStatus.geolocation) {
+                    fetchWeatherWithLocation();
+                } else {
+                    fetchWeather();
+                }
+            }
+
+            if (currentService === 'azkar') {
+                // حفظ إعدادات الأذكار إذا كانت موجودة
+                const savedAzkarSettings = {
+                    azkarNotification: document.getElementById('azkar-notification') ?
+                        document.getElementById('azkar-notification').checked : false,
+                    azkarInterval: document.getElementById('azkar-interval') ?
+                        parseInt(document.getElementById('azkar-interval').value) || 30 : 30,
+                    azkarRandom: document.getElementById('azkar-random') ?
+                        document.getElementById('azkar-random').checked : true
+                };
+
+                localStorage.setItem('azkar_settings', JSON.stringify(savedAzkarSettings));
+
+                // إعادة تحميل الأذكار
+                fetchAzkar();
+            }
+
             showSaveNotification();
 
-            // إغلاق النافذة بعد حفظ الإعدادات
             setTimeout(() => {
                 settingsModal.style.display = 'none';
             }, 1000);
@@ -2315,13 +2477,19 @@ function updateDateTime() {
 
         // تحميل الإعدادات من localStorage
         function loadSettings() {
-            // يمكنك هنا تحميل الإعدادات عند بدء التشغيل
-            // هذا مثال بسيط للتوضيح
+            // تحميل إعدادات الصلاة
             const savedPrayerSettings = JSON.parse(localStorage.getItem('prayer_settings') || '{}');
+            if (savedPrayerSettings.method) {
+                DEFAULT_METHOD = parseInt(savedPrayerSettings.method);
+            }
+
+            // تحميل إعدادات الطقس
             const savedWeatherSettings = JSON.parse(localStorage.getItem('weather_settings') || '{}');
+
+            // تحميل إعدادات الأذكار
             const savedAzkarSettings = JSON.parse(localStorage.getItem('azkar_settings') || '{}');
 
-            // تطبيق الإعدادات إذا لزم الأمر
+            console.log('✅ تم تحميل الإعدادات من localStorage');
         }
 
         // البحث على الإنترنت باستخدام Brave Search
