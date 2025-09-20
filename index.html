@@ -2336,29 +2336,44 @@
             const savedSettings = JSON.parse(localStorage.getItem(`${service}_settings`) || '{}');
 
             switch(service) {
-                case 'prayer':
-                    title = 'إعدادات أوقات الصلاة';
-                    settingsHTML = `
-                        <div class="form-group">
-                            <label>الموقع الجغرافي</label>
-                            <div class="location-settings">
-                                <input type="text" class="form-control" id="prayer-location" placeholder="اسم المدينة" value="${savedSettings.location || DEFAULT_CITY}">
-                                <button class="location-auto" id="prayer-location-auto"><i class="fas fa-location-arrow"></i> التحديد التلقائي</button>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>طريقة الحساب</label>
-                            <select class="form-control" id="prayer-method">
-                                <option value="1" ${savedSettings.method == 1 ? 'selected' : ''}>جامعة العلوم الإسلامية (كراتشي)</option>
-                                <option value="2" ${savedSettings.method == 2 ? 'selected' : ''}>الهيئة العامة للمساحة المصرية</option>
-                                <option value="3" ${savedSettings.method == 3 ? 'selected' : ''}>رابطة العالم الإسلامي</option>
-                                <option value="4" ${savedSettings.method == 4 || !savedSettings.method ? 'selected' : ''}>أم القرى (مكة المكرمة)</option>
-                                <option value="5" ${savedSettings.method == 5 ? 'selected' : ''}>الإمارات العربية المتحدة</option>
-                                <option value="6" ${savedSettings.method == 6 ? 'selected' : ''}>الجزائر، المغرب، تونس</option>
-                                <option value="26" ${savedSettings.method == 26 ? 'selected' : ''}>المغرب</option>
-                            </select>
-                        </div>
-                    `;
+    case 'prayer':
+        title = 'إعدادات أوقات الصلاة';
+        settingsHTML = `
+            <div class="form-group">
+                <label>الموقع الجغرافي</label>
+                <div class="location-settings">
+                    <input type="text" class="form-control" id="prayer-location" placeholder="اسم المدينة" value="${savedSettings.location || DEFAULT_CITY}">
+                    <button class="location-auto" id="prayer-location-auto"><i class="fas fa-location-arrow"></i> التحديد التلقائي</button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>طريقة الحساب</label>
+                <select class="form-control" id="prayer-method">
+                    <option value="0" ${savedSettings.method == 0 ? 'selected' : ''}>Muslim World League</option>
+                    <option value="1" ${savedSettings.method == 1 ? 'selected' : ''}>Islamic Society of North America</option>
+                    <option value="2" ${savedSettings.method == 2 ? 'selected' : ''}>Egyptian General Authority of Survey</option>
+                    <option value="3" ${savedSettings.method == 3 ? 'selected' : ''}>Umm Al-Qura University, Makkah</option>
+                    <option value="4" ${savedSettings.method == 4 ? 'selected' : ''}>University of Islamic Sciences, Karachi</option>
+                    <option value="5" ${savedSettings.method == 5 ? 'selected' : ''}>Institute of Geophysics, University of Tehran</option>
+                    <option value="7" ${savedSettings.method == 7 ? 'selected' : ''}>Shia Ithna-Ashari, Leva Institute, Qum</option>
+                    <option value="8" ${savedSettings.method == 8 ? 'selected' : ''}>Gulf Region</option>
+                    <option value="9" ${savedSettings.method == 9 ? 'selected' : ''}>Kuwait</option>
+                    <option value="10" ${savedSettings.method == 10 ? 'selected' : ''}>Qatar</option>
+                    <option value="11" ${savedSettings.method == 11 ? 'selected' : ''}>Majlis Ugama Islam Singapura, Singapore</option>
+                    <option value="12" ${savedSettings.method == 12 ? 'selected' : ''}>Union Organization islamic de France</option>
+                    <option value="13" ${savedSettings.method == 13 ? 'selected' : ''}>Diyanet İşleri Başkanlığı, Turkey</option>
+                    <option value="14" ${savedSettings.method == 14 ? 'selected' : ''}>Spiritual Administration of Muslims of Russia</option>
+                    <option value="15" ${savedSettings.method == 15 ? 'selected' : ''}>Moonsighting Committee</option>
+                    <option value="16" ${savedSettings.method == 16 ? 'selected' : ''}>Dubai, UAE (Batoul Apps)</option>
+                    <option value="17" ${savedSettings.method == 17 ? 'selected' : ''}>Jabatan Kemajuan Islam Malaysia (JAKIM)</option>
+                    <option value="18" ${savedSettings.method == 18 ? 'selected' : ''}>Tunisia</option>
+                    <option value="19" ${savedSettings.method == 19 ? 'selected' : ''}>Algeria</option>
+                    <option value="20" ${savedSettings.method == 20 ? 'selected' : ''}>Kementerian Agama Republik Indonesia</option>
+                    <option value="21" ${savedSettings.method == 21 ? 'selected' : ''}>Morocco</option>
+                    <option value="22" ${savedSettings.method == 22 ? 'selected' : ''}>Comunidate Islamica de Lisboa, Portugal</option>
+                </select>
+            </div>
+        `;
                     break;
                 case 'weather':
                     title = 'إعدادات الطقس';
