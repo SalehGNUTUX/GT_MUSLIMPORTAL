@@ -688,6 +688,30 @@
             color: #a3d39d;
         }
 
+        /* أنماط عناصر التحكم بالأذان */
+        #athan-controls {
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        #athan-controls button {
+            transition: all 0.3s ease;
+        }
+
+        #athan-controls button:hover {
+            transform: scale(1.05);
+        }
+
         @media (max-width: 992px) {
             .header-top {
                 flex-direction: column;
@@ -1189,6 +1213,166 @@
             notifications: false
         };
 
+        // دالة لتشغيل الأذان الصوتي
+        function playAthanSound(soundType = 'default') {
+            const soundUrls = {
+                'default': 'https://www.islamweb.net/athan/athan1.mp3',
+                'makkah': 'https://www.islamweb.net/athan/athan2.mp3', 
+                'madina': 'https://www.islamweb.net/athan/athan3.mp3',
+                'al-aqsa': 'https://www.islamweb.net/athan/athan4.mp3'
+            };
+
+            // إنشاء عنصر صوت
+            const audio = new Audio(soundUrls[soundType]);
+            
+            // إعداد خصائص الصوت
+            audio.volume = 0.7;
+            audio.preload = 'auto';
+            
+            // محاولة التشغيل
+            audio.play().catch(error => {
+                console.log('❌ تعذر تشغيل الأذان الصوتي:', error);
+                
+                // بديل: استخدام صوت من متصفح المستخدم
+                playFallbackAthan();
+            });
+            
+            // إظهار عناصر التحكم بالصوت
+            showAudioControls(audio, soundType);
+        }
+
+        // بديل صوتي إذا فشل تحميل الملف
+        function playFallbackAthan() {
+            // استخدام Web Audio API لإنشاء نغمة بديلة
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            // نغمة الأذان التقريبي
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(440, audioContext.currentTime);
+            oscillator.frequency.setValueAtTime(880, audioContext.currentTime + 1);
+            oscillator.frequency.setValueAtTime(440, audioContext.currentTime + 2);
+            
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 3);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 3);
+            
+            console.log('🔊 تشغيل نغمة الأذان البديلة');
+        }
+
+        // عرض عناصر التحكم بالصوت
+        function showAudioControls(audio, soundType) {
+            // إزالة عناصر التحكم السابقة إذا وجدت
+            const existingControls = document.getElementById('athan-controls');
+            if (existingControls) {
+                existingControls.remove();
+            }
+            
+            // إنشاء عناصر التحكم
+            const controls = document.createElement('div');
+            controls.id = 'athan-controls';
+            controls.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                left: 20px;
+                background: var(--modal-bg);
+                padding: 15px;
+                border-radius: 10px;
+                border: 2px solid var(--primary-color);
+                z-index: 10000;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+                min-width: 200px;
+            `;
+            
+            controls.innerHTML = `
+                <div style="text-align: center; margin-bottom: 10px;">
+                    <strong>🕌 الأذان</strong>
+                    <br>
+                    <small>${getAthanName(soundType)}</small>
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: center;">
+                    <button id="pause-athan" style="padding: 5px 10px; background: #f44336; color: white; border: none; border-radius: 5px; cursor: pointer;">إيقاف</button>
+                    <button id="resume-athan" style="padding: 5px 10px; background: #4caf50; color: white; border: none; border-radius: 5px; cursor: pointer;">استئناف</button>
+                    <button id="close-athan" style="padding: 5px 10px; background: #666; color: white; border: none; border-radius: 5px; cursor: pointer;">إغلاق</button>
+                </div>
+                <div style="margin-top: 10px;">
+                    <input type="range" id="volume-control" min="0" max="1" step="0.1" value="0.7" style="width: 100%;">
+                    <div style="text-align: center; font-size: 0.8em;">الصوت</div>
+                </div>
+            `;
+            
+            document.body.appendChild(controls);
+            
+            // إضافة event listeners
+            document.getElementById('pause-athan').addEventListener('click', () => {
+                audio.pause();
+            });
+            
+            document.getElementById('resume-athan').addEventListener('click', () => {
+                audio.play().catch(console.error);
+            });
+            
+            document.getElementById('close-athan').addEventListener('click', () => {
+                audio.pause();
+                controls.remove();
+            });
+            
+            document.getElementById('volume-control').addEventListener('input', (e) => {
+                audio.volume = e.target.value;
+            });
+            
+            // إغلاق تلقائي بعد انتهاء الصوت
+            audio.addEventListener('ended', () => {
+                setTimeout(() => {
+                    controls.remove();
+                }, 3000);
+            });
+        }
+
+        // الحصول على اسم نوع الأذان
+        function getAthanName(type) {
+            const names = {
+                'default': 'أذان تقليدي',
+                'makkah': 'أذان مكة',
+                'madina': 'أذان المدينة', 
+                'al-aqsa': 'أذان الأقصى'
+            };
+            return names[type] || 'أذان';
+        }
+
+        // دالة جديدة لتفعيل جميع الإشعارات تلقائياً
+        function enableAllNotifications() {
+            // إعدادات الصلاة - تفعيل جميع الإشعارات
+            const prayerSettings = JSON.parse(localStorage.getItem('prayer_settings') || '{}');
+            prayerSettings.prayerTimeNotification = true;
+            prayerSettings.prayerBeforeNotification = true;
+            prayerSettings.prayerCustomTime = 10;
+            prayerSettings.timeFormat = '12';
+            prayerSettings.athanSound = 'default';
+            localStorage.setItem('prayer_settings', JSON.stringify(prayerSettings));
+
+            // إعدادات الطقس - تفعيل الإشعارات
+            const weatherSettings = JSON.parse(localStorage.getItem('weather_settings') || '{}');
+            weatherSettings.weatherNotification = true;
+            weatherSettings.weatherInterval = 60;
+            localStorage.setItem('weather_settings', JSON.stringify(weatherSettings));
+
+            // إعدادات الأذكار - تفعيل جميع الإشعارات
+            const azkarSettings = JSON.parse(localStorage.getItem('azkar_settings') || '{}');
+            azkarSettings.azkarNotification = true;
+            azkarSettings.azkarInterval = 30;
+            azkarSettings.azkarRandom = true;
+            localStorage.setItem('azkar_settings', JSON.stringify(azkarSettings));
+
+            console.log('✅ تم تفعيل جميع الإشعارات تلقائياً');
+        }
+
         // طلب أذونات الموقع والإشعارات تلقائياً
         async function requestPermissions() {
             try {
@@ -1252,17 +1436,23 @@
                     }
                 }
 
-                // طلب إذن الإشعارات
+                // طلب إذن الإشعارات - تحسين الذاكرة
                 if ('Notification' in window) {
                     const savedPermissions = JSON.parse(localStorage.getItem('app_permissions') || '{}');
-
-                    if (Notification.permission === 'default' && !savedPermissions.notifications_asked) {
+                    
+                    // إذا لم يسبق طلب الإذن أو إذا كان الإذن ممنوعاً سابقاً
+                    if ((Notification.permission === 'default' && !savedPermissions.notifications_asked) || 
+                        (Notification.permission === 'denied' && !savedPermissions.notifications_asked)) {
+                        
                         const permission = await Notification.requestPermission();
 
                         if (permission === 'granted') {
                             permissionsStatus.notifications = true;
                             console.log('✅ تم الحصول على إذن الإشعارات');
 
+                            // تفعيل جميع الإشعارات تلقائياً
+                            enableAllNotifications();
+                            
                             // إرسال إشعار ترحيبي
                             showWelcomeNotification();
                         } else {
@@ -1278,6 +1468,9 @@
                     } else if (Notification.permission === 'granted') {
                         permissionsStatus.notifications = true;
                         console.log('✅ إذن الإشعارات متاح مسبقاً');
+                        
+                        // تفعيل جميع الإشعارات تلقائياً
+                        enableAllNotifications();
                     }
                 }
 
@@ -1370,6 +1563,11 @@
 
             // إضافة مستمع لحدث التمرير
             window.addEventListener('scroll', handleScroll);
+            
+            // تحميل الأذكار المخصصة
+            loadCustomAzkar();
+            
+            console.log('✅ تم تهيئة التطبيق بنجاح مع تفعيل جميع الإشعارات');
         }
 
         // التعامل مع حدث التمرير
@@ -1564,14 +1762,10 @@
                 compactTime.textContent = arabicTime;
             }
 
-            // التاريخ الميلادي (باستخدام الأرقام العربية)
-            const gregorianDate = now.toLocaleDateString('ar-SA', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            });
-            const arabicGregorianDate = convertToArabicDigits(gregorianDate);
-            gregorianDateElement.textContent = `📅 التاريخ الميلادي: ${arabicGregorianDate}`;
+            // لا تقم بتحديث التاريخ الميلادي هنا، فقط تأكد من أنه لا يزال مضبوطًا بشكل صحيح
+            if (window.lastGregorianDate && gregorianDateElement.textContent !== `📅 التاريخ الميلادي: ${window.lastGregorianDate}`) {
+                gregorianDateElement.innerHTML = `📅 التاريخ الميلادي: ${window.lastGregorianDate}`;
+            }
         }
 
         // جلب التاريخ الهجري
@@ -1635,28 +1829,6 @@
                 const arabicGregorianDate = convertToArabicDigits(gregorianDate);
                 gregorianDateElement.innerHTML = `📅 التاريخ الميلادي: ${arabicGregorianDate}`;
                 window.lastGregorianDate = arabicGregorianDate;
-            }
-        }
-
-        // ثم قم بتعديل دالة updateDateTime() لعدم تعديل التاريخ الميلادي:
-        function updateDateTime() {
-            const now = new Date();
-
-            // الوقت الحالي مع الأرقام العربية
-            const timeString = now.toLocaleTimeString('ar-SA', {
-                hour12: true,
-                hour: 'numeric',
-                minute: 'numeric',
-                second: 'numeric'
-            });
-
-            // تحويل الأرقام المشرقية إلى عربية
-            const arabicTime = convertToArabicDigits(timeString);
-            currentTimeElement.textContent = `⏰ ${arabicTime}`;
-
-            // لا تقم بتحديث التاريخ الميلادي هنا، فقط تأكد من أنه لا يزال مضبوطًا بشكل صحيح
-            if (window.lastGregorianDate && gregorianDateElement.textContent !== `📅 التاريخ الميلادي: ${window.lastGregorianDate}`) {
-                gregorianDateElement.innerHTML = `📅 التاريخ الميلادي: ${window.lastGregorianDate}`;
             }
         }
 
@@ -1823,10 +1995,16 @@
 
         // إعداد إشعارات أوقات الصلاة
         function setupPrayerNotifications(timings) {
-            if (!permissionsStatus.notifications) return;
+            if (!permissionsStatus.notifications) {
+                console.log('❌ الإذن بالإشعارات غير متاح للصلاة');
+                return;
+            }
 
             const savedSettings = JSON.parse(localStorage.getItem('prayer_settings') || '{}');
-            if (!savedSettings.prayerTimeNotification) return;
+            if (!savedSettings.prayerTimeNotification) {
+                console.log('❌ إشعارات الصلاة غير مفعلة في الإعدادات');
+                return;
+            }
 
             // مسح الإشعارات السابقة
             clearPrayerNotifications();
@@ -1851,36 +2029,53 @@
                 if (prayerTime > now) {
                     const timeUntilPrayer = prayerTime.getTime() - now.getTime();
 
-                    setTimeout(() => {
+                    const timeout = setTimeout(() => {
+                        // إرسال الإشعار
                         sendNotification(
                             `${prayer.icon} حان وقت ${prayer.name}`,
                             `الوقت الآن ${prayer.time} - حان وقت صلاة ${prayer.name}`,
                             prayer.icon,
                             `prayer-${prayer.name}`
                         );
+                        
+                        // 🔥 تشغيل الأذان الصوتي هنا
+                        if (savedSettings.athanSound) {
+                            console.log(`🔊 تشغيل الأذان الصوتي لصلاة ${prayer.name}`);
+                            playAthanSound(savedSettings.athanSound);
+                        }
+                        
+                        console.log(`✅ تم إرسال إشعار صلاة ${prayer.name}`);
                     }, timeUntilPrayer);
+
+                    if (!window.prayerTimeouts) window.prayerTimeouts = [];
+                    window.prayerTimeouts.push(timeout);
                 }
 
-                // إشعار قبل الصلاة بـ 10 دقائق (إذا كان مفعلاً)
+                // إشعار قبل الصلاة (يبقى كما هو بدون صوت)
                 if (savedSettings.prayerBeforeNotification) {
                     const tenMinutesBefore = new Date(prayerTime.getTime() - 10 * 60 * 1000);
 
                     if (tenMinutesBefore > now) {
                         const timeUntilReminder = tenMinutesBefore.getTime() - now.getTime();
 
-                        setTimeout(() => {
+                        const timeout = setTimeout(() => {
                             sendNotification(
                                 `⏰ تذكير صلاة ${prayer.name}`,
                                 `باقي 10 دقائق على صلاة ${prayer.name} (${prayer.time})`,
                                 '⏰',
                                 `reminder-${prayer.name}`
                             );
+                            
+                            console.log(`✅ تم إرسال تذكير صلاة ${prayer.name}`);
                         }, timeUntilReminder);
+
+                        if (!window.prayerTimeouts) window.prayerTimeouts = [];
+                        window.prayerTimeouts.push(timeout);
                     }
                 }
             });
 
-            console.log('✅ تم إعداد إشعارات أوقات الصلاة');
+            console.log('✅ تم إعداد إشعارات أوقات الصلاة بنجاح');
         }
 
         // مسح إشعارات أوقات الصلاة السابقة
@@ -1972,7 +2167,7 @@
                     </div>
                     <div class="weather-item">
                         <span>الرياح:</span>
-                                                <span>${windSpeed} كم/س</span>
+                        <span>${windSpeed} كم/س</span>
                     </div>
                 `;
             }
@@ -2057,6 +2252,80 @@
                 });
         }
 
+        // إصلاح دالة إضافة الأذكار المخصصة
+        function addCustomAzkar() {
+            const newAzkarInput = document.getElementById('new-azkar');
+            const newAzkar = newAzkarInput.value.trim();
+
+            if (newAzkar) {
+                // تحميل الأذكار المخصصة الحالية
+                const customAzkar = JSON.parse(localStorage.getItem('custom_azkar') || '[]');
+                
+                // إضافة الذكر الجديد
+                customAzkar.push(newAzkar);
+                
+                // حفظ في localStorage
+                localStorage.setItem('custom_azkar', JSON.stringify(customAzkar));
+                
+                // تحديث العرض
+                loadCustomAzkar();
+                
+                // مسح حقل الإدخال
+                newAzkarInput.value = '';
+                
+                // إظهار رسالة نجاح
+                alert('✅ تم إضافة الذكر بنجاح!');
+                
+                console.log('✅ تم إضافة ذكر مخصص جديد:', newAzkar);
+            } else {
+                alert('❌ الرجاء كتابة ذكر قبل الإضافة');
+            }
+        }
+
+        // تحسين دالة تحميل الأذكار المخصصة
+        function loadCustomAzkar() {
+            const customAzkarList = document.getElementById('custom-azkar-list');
+            const customAzkar = JSON.parse(localStorage.getItem('custom_azkar') || '[]');
+            
+            customAzkarList.innerHTML = '';
+            
+            if (customAzkar.length === 0) {
+                customAzkarList.innerHTML = '<div style="text-align: center; padding: 10px; color: #ccc;">لا توجد أذكار مضافة</div>';
+                return;
+            }
+            
+            customAzkar.forEach((azkar, index) => {
+                const azkarItem = document.createElement('div');
+                azkarItem.className = 'custom-azkar-item';
+                azkarItem.innerHTML = `
+                    <span>${azkar.substring(0, 50)}${azkar.length > 50 ? '...' : ''}</span>
+                    <button class="remove-azkar" data-index="${index}"><i class="fas fa-trash"></i></button>
+                `;
+                customAzkarList.appendChild(azkarItem);
+            });
+            
+            // إضافة event listeners لأزرار الحذف
+            document.querySelectorAll('.remove-azkar').forEach(button => {
+                button.addEventListener('click', function() {
+                    const index = parseInt(this.getAttribute('data-index'));
+                    removeCustomAzkar(index);
+                });
+            });
+        }
+
+        // دالة حذف الأذكار المخصصة
+        function removeCustomAzkar(index) {
+            const customAzkar = JSON.parse(localStorage.getItem('custom_azkar') || '[]');
+            
+            if (index >= 0 && index < customAzkar.length) {
+                customAzkar.splice(index, 1);
+                localStorage.setItem('custom_azkar', JSON.stringify(customAzkar));
+                loadCustomAzkar();
+                
+                console.log('✅ تم حذف الذكر المخصص');
+            }
+        }
+
         // جلب الأذكار من API
         function fetchAzkar() {
             // عرض حالة التحميل
@@ -2065,6 +2334,10 @@
                     <i class="fas fa-spinner fa-spin"></i> جاري تحميل الأذكار...
                 </div>
             `;
+
+            // تحميل الأذكار المخصصة
+            const customAzkar = JSON.parse(localStorage.getItem('custom_azkar') || '[]');
+            const allAzkar = [...azkarList, ...customAzkar];
 
             // محاولة استخدام مصدرين مختلفين للأذكار
             const azkarSources = [
@@ -2078,7 +2351,7 @@
                 new Promise((resolve) => {
                     setTimeout(() => {
                         resolve({
-                            content: azkarList[Math.floor(Math.random() * azkarList.length)]
+                            content: allAzkar[Math.floor(Math.random() * allAzkar.length)]
                         });
                     }, 1000);
                 })
@@ -2095,7 +2368,7 @@
                 .catch(error => {
                     console.error('Error fetching azkar:', error);
                     // استخدام الأذكار المحلية في حالة فشل الجلب
-                    const randomAzkar = azkarList[Math.floor(Math.random() * azkarList.length)];
+                    const randomAzkar = allAzkar[Math.floor(Math.random() * allAzkar.length)];
                     updateAzkar(randomAzkar);
 
                     // إعداد إشعارات الأذكار
@@ -2128,12 +2401,18 @@
             });
         }
 
-        // إعداد إشعارات الأذكار
+        // تحسين دالة إعداد إشعارات الأذكار
         function setupAzkarNotifications() {
-            if (!permissionsStatus.notifications) return;
+            if (!permissionsStatus.notifications) {
+                console.log('❌ الإذن بالإشعارات غير متاح');
+                return;
+            }
 
             const savedSettings = JSON.parse(localStorage.getItem('azkar_settings') || '{}');
-            if (!savedSettings.azkarNotification) return;
+            if (!savedSettings.azkarNotification) {
+                console.log('❌ إشعارات الأذكار غير مفعلة في الإعدادات');
+                return;
+            }
 
             // مسح الإشعارات السابقة
             clearAzkarNotifications();
@@ -2141,7 +2420,8 @@
             // إعداد إشعارات الأذكار في أوقات مختلفة من اليوم
             const azkarTimes = [
                 { hour: 6, minute: 0, type: 'morning', title: '🌅 أذكار الصباح' },
-                { hour: 12, minute: 0, type: 'noon', title: '☀️ ذكر الظهيرة' },
+                { hour: 9, minute: 0, type: 'morning2', title: '☀️ تذكير الصباح' },
+                { hour: 12, minute: 0, type: 'noon', title: '🕌 ذكر الظهيرة' },
                 { hour: 15, minute: 0, type: 'afternoon', title: '🌇 ذكر العصر' },
                 { hour: 18, minute: 0, type: 'evening', title: '🌆 أذكار المساء' },
                 { hour: 21, minute: 0, type: 'night', title: '🌙 أذكار الليل' }
@@ -2160,7 +2440,7 @@
 
                     const timeout = setTimeout(() => {
                         const randomAzkar = azkarList[Math.floor(Math.random() * azkarList.length)];
-                        const shortAzkar = randomAzkar.length > 100 ?
+                        const shortAzkar = randomAzkar.length > 100 ? 
                             randomAzkar.substring(0, 100) + '...' : randomAzkar;
 
                         sendNotification(
@@ -2169,33 +2449,70 @@
                             '📿',
                             `azkar-${azkarTime.type}`
                         );
+                        
+                        // إعادة جدولة للإشعار التالي
+                        setTimeout(setupAzkarNotifications, 24 * 60 * 60 * 1000); // بعد 24 ساعة
                     }, timeUntilAzkar);
 
                     // حفظ المؤقت لإمكانية إلغاؤه لاحقاً
                     if (!window.azkarTimeouts) window.azkarTimeouts = [];
                     window.azkarTimeouts.push(timeout);
+                    
+                    console.log(`✅ تم جدولة إشعار الأذكار لـ ${azkarTime.title} الساعة ${azkarTime.hour}:${azkarTime.minute}`);
+                } else {
+                    // إذا فات الوقت اليوم، جدولة ليوم الغد
+                    const tomorrow = new Date(today);
+                    tomorrow.setDate(tomorrow.getDate() + 1);
+                    tomorrow.setHours(azkarTime.hour, azkarTime.minute, 0, 0);
+                    
+                    const timeUntilTomorrow = tomorrow.getTime() - now.getTime();
+                    
+                    const timeout = setTimeout(() => {
+                        const randomAzkar = azkarList[Math.floor(Math.random() * azkarList.length)];
+                        const shortAzkar = randomAzkar.length > 100 ? 
+                            randomAzkar.substring(0, 100) + '...' : randomAzkar;
+
+                        sendNotification(
+                            azkarTime.title,
+                            shortAzkar,
+                            '📿',
+                            `azkar-${azkarTime.type}`
+                        );
+                        
+                        // إعادة جدولة للإشعار التالي
+                        setTimeout(setupAzkarNotifications, 24 * 60 * 60 * 1000);
+                    }, timeUntilTomorrow);
+
+                    if (!window.azkarTimeouts) window.azkarTimeouts = [];
+                    window.azkarTimeouts.push(timeout);
+                    
+                    console.log(`✅ تم جدولة إشعار الأذكار لـ ${azkarTime.title} ليوم الغد الساعة ${azkarTime.hour}:${azkarTime.minute}`);
                 }
             });
 
-            // إشعار أذكار عشوائي كل 3 ساعات
-            const randomAzkarInterval = setInterval(() => {
-                const randomAzkar = azkarList[Math.floor(Math.random() * azkarList.length)];
-                const shortAzkar = randomAzkar.length > 80 ?
-                    randomAzkar.substring(0, 80) + '...' : randomAzkar;
+            // إشعار أذكار عشوائي كل ساعة إذا كان مفعلاً
+            if (savedSettings.azkarRandom) {
+                const randomAzkarInterval = setInterval(() => {
+                    const randomAzkar = azkarList[Math.floor(Math.random() * azkarList.length)];
+                    const shortAzkar = randomAzkar.length > 80 ? 
+                        randomAzkar.substring(0, 80) + '...' : randomAzkar;
 
-                sendNotification(
-                    '📿 ذكر من الأذكار',
-                    shortAzkar,
-                    '📿',
-                    'random-azkar'
-                );
-            }, 3 * 60 * 60 * 1000); // كل 3 ساعات
+                    sendNotification(
+                        '📿 ذكر من الأذكار',
+                        shortAzkar,
+                        '📿',
+                        'random-azkar'
+                    );
+                }, 60 * 60 * 1000); // كل ساعة
 
-            // حفظ المؤقت
-            if (!window.azkarIntervals) window.azkarIntervals = [];
-            window.azkarIntervals.push(randomAzkarInterval);
+                // حفظ المؤقت
+                if (!window.azkarIntervals) window.azkarIntervals = [];
+                window.azkarIntervals.push(randomAzkarInterval);
+                
+                console.log('✅ تم تفعيل الإشعارات العشوائية للأذكار كل ساعة');
+            }
 
-            console.log('✅ تم إعداد إشعارات الأذكار');
+            console.log('✅ تم إعداد إشعارات الأذكار بنجاح');
         }
 
         // مسح إشعارات الأذكار السابقة
@@ -2336,44 +2653,29 @@
             const savedSettings = JSON.parse(localStorage.getItem(`${service}_settings`) || '{}');
 
             switch(service) {
-    case 'prayer':
-        title = 'إعدادات أوقات الصلاة';
-        settingsHTML = `
-            <div class="form-group">
-                <label>الموقع الجغرافي</label>
-                <div class="location-settings">
-                    <input type="text" class="form-control" id="prayer-location" placeholder="اسم المدينة" value="${savedSettings.location || DEFAULT_CITY}">
-                    <button class="location-auto" id="prayer-location-auto"><i class="fas fa-location-arrow"></i> التحديد التلقائي</button>
-                </div>
-            </div>
-            <div class="form-group">
-                <label>طريقة الحساب</label>
-                <select class="form-control" id="prayer-method">
-                    <option value="0" ${savedSettings.method == 0 ? 'selected' : ''}>Muslim World League</option>
-                    <option value="1" ${savedSettings.method == 1 ? 'selected' : ''}>Islamic Society of North America</option>
-                    <option value="2" ${savedSettings.method == 2 ? 'selected' : ''}>Egyptian General Authority of Survey</option>
-                    <option value="3" ${savedSettings.method == 3 ? 'selected' : ''}>Umm Al-Qura University, Makkah</option>
-                    <option value="4" ${savedSettings.method == 4 ? 'selected' : ''}>University of Islamic Sciences, Karachi</option>
-                    <option value="5" ${savedSettings.method == 5 ? 'selected' : ''}>Institute of Geophysics, University of Tehran</option>
-                    <option value="7" ${savedSettings.method == 7 ? 'selected' : ''}>Shia Ithna-Ashari, Leva Institute, Qum</option>
-                    <option value="8" ${savedSettings.method == 8 ? 'selected' : ''}>Gulf Region</option>
-                    <option value="9" ${savedSettings.method == 9 ? 'selected' : ''}>Kuwait</option>
-                    <option value="10" ${savedSettings.method == 10 ? 'selected' : ''}>Qatar</option>
-                    <option value="11" ${savedSettings.method == 11 ? 'selected' : ''}>Majlis Ugama Islam Singapura, Singapore</option>
-                    <option value="12" ${savedSettings.method == 12 ? 'selected' : ''}>Union Organization islamic de France</option>
-                    <option value="13" ${savedSettings.method == 13 ? 'selected' : ''}>Diyanet İşleri Başkanlığı, Turkey</option>
-                    <option value="14" ${savedSettings.method == 14 ? 'selected' : ''}>Spiritual Administration of Muslims of Russia</option>
-                    <option value="15" ${savedSettings.method == 15 ? 'selected' : ''}>Moonsighting Committee</option>
-                    <option value="16" ${savedSettings.method == 16 ? 'selected' : ''}>Dubai, UAE (Batoul Apps)</option>
-                    <option value="17" ${savedSettings.method == 17 ? 'selected' : ''}>Jabatan Kemajuan Islam Malaysia (JAKIM)</option>
-                    <option value="18" ${savedSettings.method == 18 ? 'selected' : ''}>Tunisia</option>
-                    <option value="19" ${savedSettings.method == 19 ? 'selected' : ''}>Algeria</option>
-                    <option value="20" ${savedSettings.method == 20 ? 'selected' : ''}>Kementerian Agama Republik Indonesia</option>
-                    <option value="21" ${savedSettings.method == 21 ? 'selected' : ''}>Morocco</option>
-                    <option value="22" ${savedSettings.method == 22 ? 'selected' : ''}>Comunidate Islamica de Lisboa, Portugal</option>
-                </select>
-            </div>
-        `;
+                case 'prayer':
+                    title = 'إعدادات أوقات الصلاة';
+                    settingsHTML = `
+                        <div class="form-group">
+                            <label>الموقع الجغرافي</label>
+                            <div class="location-settings">
+                                <input type="text" class="form-control" id="prayer-location" placeholder="اسم المدينة" value="${savedSettings.location || DEFAULT_CITY}">
+                                <button class="location-auto" id="prayer-location-auto"><i class="fas fa-location-arrow"></i> التحديد التلقائي</button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>طريقة الحساب</label>
+                            <select class="form-control" id="prayer-method">
+                                <option value="1" ${savedSettings.method == 1 ? 'selected' : ''}>جامعة العلوم الإسلامية (كراتشي)</option>
+                                <option value="2" ${savedSettings.method == 2 ? 'selected' : ''}>الهيئة العامة للمساحة المصرية</option>
+                                <option value="3" ${savedSettings.method == 3 ? 'selected' : ''}>رابطة العالم الإسلامي</option>
+                                <option value="4" ${savedSettings.method == 4 || !savedSettings.method ? 'selected' : ''}>أم القرى (مكة المكرمة)</option>
+                                <option value="5" ${savedSettings.method == 5 ? 'selected' : ''}>الإمارات العربية المتحدة</option>
+                                <option value="6" ${savedSettings.method == 6 ? 'selected' : ''}>الجزائر، المغرب، تونس</option>
+                                <option value="26" ${savedSettings.method == 26 ? 'selected' : ''}>المغرب</option>
+                            </select>
+                        </div>
+                    `;
                     break;
                 case 'weather':
                     title = 'إعدادات الطقس';
