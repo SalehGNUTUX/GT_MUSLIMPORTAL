@@ -173,21 +173,6 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        /* تحسين شريط التاريخ المدمج للهواتف */
-        .compact-date-time .date-info {
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .compact-date-time .hijri-compact,
-        .compact-date-time .gregorian-compact {
-            font-size: 0.75rem;
-            line-height: 1.3;
-        }
-
         footer {
             position: relative;
             text-align: center;
@@ -202,28 +187,8 @@
             margin-top: 30px;
         }
 
-        .footer-links {
-            margin: 10px 0;
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-
-        .footer-link {
-            color: #a3d39d;
-            text-decoration: none;
-            transition: color 0.3s ease;
-            font-size: 0.9rem;
-        }
-
-        .footer-link:hover {
-            color: #ffffff;
-            text-decoration: underline;
-        }
-
         .developer {
-            margin-top: 10px;
+            margin-top: 5px;
             font-size: 0.8rem;
             color: #a3d39d;
         }
@@ -839,15 +804,9 @@
                 display: block;
             }
 
-            /* تحسين شريط التاريخ على الهواتف */
-            .compact-date-time .date-info {
-                justify-content: center;
-                gap: 15px;
-            }
-
-            .compact-date-time .hijri-compact,
-            .compact-date-time .gregorian-compact {
-                font-size: 0.7rem;
+            /* إخفاء التاريخ والوقت من الرأس على الهواتف */
+            .date-time-container {
+                display: none;
             }
         }
 
@@ -875,16 +834,6 @@
 
             .description {
                 font-size: 0.8rem;
-            }
-
-            .compact-date-time .date-info {
-                flex-direction: column;
-                gap: 5px;
-            }
-
-            .compact-date-time {
-                padding: 6px 10px;
-                font-size: 0.7rem;
             }
         }
 
@@ -916,11 +865,40 @@
             }
         }
 
+        /* دعم الإشعارات على الأجهزة المحمولة */
+        @supports (display: -webkit-box) {
+            .notification-permission-banner {
+                display: -webkit-box;
+                -webkit-box-orient: vertical;
+                -webkit-box-pack: center;
+                -webkit-box-align: center;
+            }
+        }
+
+        /* تحسين عرض الإشعارات على iOS */
+        @media screen and (-webkit-min-device-pixel-ratio: 2) {
+            .service-card {
+                -webkit-transform: translateZ(0);
+                transform: translateZ(0);
+            }
+        }
+
         /* دعم الوضع المظلم на الأجهزة */
         @media (prefers-color-scheme: dark) {
             :root {
                 --card-bg: rgba(255, 255, 255, 0.08);
                 --modal-bg: rgba(20, 20, 20, 0.95);
+            }
+        }
+
+        /* تحسين الأداء على الأجهزة الضعيفة */
+        @media (max-resolution: 150dpi) {
+            .service-card {
+                transition: none;
+            }
+
+            .btn {
+                transition: background-color 0.2s ease;
             }
         }
     </style>
@@ -933,11 +911,8 @@
 
     <!-- شريط التاريخ والوقت المدمج -->
     <div class="compact-date-time" id="compact-date-time">
-        <div class="date-info">
-            <span class="hijri-compact" id="compact-hijri-date">جاري التحميل...</span>
-            <span class="gregorian-compact" id="compact-gregorian-date">جاري التحميل...</span>
-            <span class="time-compact arabic-digits" id="compact-time">00:00:00</span>
-        </div>
+        <span id="compact-hijri-date">جاري التحميل...</span> |
+        <span id="compact-time" class="arabic-digits">00:00:00</span>
     </div>
 
     <header id="main-header">
@@ -1053,15 +1028,8 @@
 
     <footer>
         <p>جميع الحقوق محفوظة © 2025 | بوابة المسلم - GT-MUSLIMPORTAL</p>
-        <div class="footer-links">
-            <a href="https://github.com/SalehGNUTUX/GT_MUSLIMPORTAL" class="footer-link" target="_blank">
-                <i class="fab fa-github"></i> مستودع المشروع على GitHub
-            </a>
-            <a href="https://salehgnutux.github.io/gnutux/" class="footer-link" target="_blank">
-                <i class="fas fa-code"></i> مشاريع GNUTUX
-            </a>
-        </div>
-        <p class="developer">تم التطوير بواسطة: GNUTUX (صالح بن إسماعيل)</p>
+        <p>صمم بحب <span style="color: #ff5252;">♥️</span> لخدمة المسلمين</p>
+        <p class="developer">تم التطوير بواسطة: GNUTUX</p>
     </footer>
 
     <!-- نافذة إعدادات الإخطارات -->
@@ -1075,7 +1043,7 @@
                 <label>
                     تفعيل الإخطارات
                     <label class="switch">
-                        <input type="checkbox" id="notifications-toggle" checked>
+                        <input type="checkbox" id="notifications-toggle">
                         <span class="slider"></span>
                     </label>
                 </label>
@@ -1117,15 +1085,17 @@
                 <div class="form-group">
                     <label for="weather-source">مصدر الطقس:</label>
                     <select id="weather-source" class="form-control">
-                        <option value="openweather" selected>OpenWeatherMap</option>
-                        <option value="weatherapi">WeatherAPI.com</option>
+                        <option value="openweather">OpenWeatherMap</option>
+                        <option value="weatherstack">Weatherstack</option>
+                        <option value="accuweather">AccuWeather</option>
                         <option value="manual">يدوي</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label for="azkar-source">مصدر الأذكار:</label>
                     <select id="azkar-source" class="form-control">
-                        <option value="local" selected>قائمة محلية</option>
+                        <option value="azkar-ml">Azkar.ml</option>
+                        <option value="islamic-network">Islamic Network</option>
                         <option value="manual">يدوي</option>
                     </select>
                 </div>
@@ -1139,9 +1109,6 @@
     </div>
 
     <script>
-        // 🔑 إدراج مفتاح OpenWeatherMap API هنا (استخدم المفتاح gnutux)
-        const OPENWEATHER_API_KEY = 'f0ed710dcf93ae854ea48b4163011376';
-
         // دالة لضبط الهامش العلوي للمحتوى
         function adjustContainerMargin() {
             const header = document.querySelector('header');
@@ -1149,7 +1116,7 @@
 
             if (header && container) {
                 const headerHeight = header.offsetHeight;
-                container.style.marginTop = headerHeight + 20 + 'px';
+                container.style.marginTop = headerHeight + 20 + 'px'; // 20px هامش إضافي
             }
         }
 
@@ -1181,7 +1148,6 @@
         const mainHeader = document.getElementById('main-header');
         const compactDateTime = document.getElementById('compact-date-time');
         const compactHijriDate = document.getElementById('compact-hijri-date');
-        const compactGregorianDate = document.getElementById('compact-gregorian-date');
         const compactTime = document.getElementById('compact-time');
         const coordinatesContainer = document.getElementById('coordinates-container');
         const latitudeValue = document.getElementById('latitude-value');
@@ -1190,552 +1156,62 @@
         // إعدادات التطبيق
         const DEFAULT_CITY = "الرباط";
         const DEFAULT_COUNTRY = "المغرب";
-        let DEFAULT_METHOD = 4;
+        let DEFAULT_METHOD = 4; // Umm Al-Qura University
         let currentService = "";
         let lastScrollTop = 0;
         let isHeaderHidden = false;
 
-        // قائمة الأذكار المحسنة (بديل عن API الخارجي)
+        // قائمة الأذكار (بديلة في حال فشل جلبها من API)
         const azkarList = [
-            // 🌅 أذكار الصباح
-            "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ، لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ (مرة واحدة)",
-            "اللَّهُمَّ مَا أَصْبَحَ بِي مِنْ نِعْمَةٍ أَوْ بِأَحَدٍ مِنْ خَلْقِكَ فَمِنْكَ وَحْدَكَ لَا شَرِيكَ لَكَ، فَلَكَ الْحَمْدُ وَلَكَ الشُّكْرُ (مرة واحدة)",
-            "حَسْبِيَ اللَّهُ لَا إِلَهَ إِلَّا هُوَ، عَلَيْهِ تَوَكَّلْتُ وَهُوَ رَبُّ الْعَرْشِ الْعَظِيمِ (7 مرات)",
-            "بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ وَهُوَ السَّمِيعُ الْعَلِيمُ (3 مرات)",
-            "اللَّهُمَّ بِكَ أَصْبَحْنَا، وَبِكَ أَمْسَيْنَا، وَبِكَ نَحْيَا، وَبِكَ نَمُوتُ، وَإِلَيْكَ النُّشُورُ (مرة واحدة)",
-            "أَعُوذُ بِكَلِمَاتِ اللَّهِ التَّامَّاتِ مِنْ شَرِّ مَا خَلَقَ (3 مرات)",
-            "اللَّهُمَّ إِنِّي أَصْبَحْتُ أُشْهِدُكَ، وَأُشْهِدُ حَمَلَةَ عَرْشِكَ، وَمَلَائِكَتَكَ، وَجَمِيعَ خَلْقِكَ، أَنَّكَ أَنْتَ اللَّهُ لَا إِلَهَ إِلَّا أَنْتَ وَحْدَكَ لَا شَرِيكَ لَكَ، وَأَنَّ مُحَمَّدًا عَبْدُكَ وَرَسُولُكَ (4 مرات)",
-            "سُبْحَانَ اللَّهِ وَبِحَمْدِهِ (100 مرة)",
-            "لَا إِلَهَ إِلَّا اللَّهُ وَحدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ (100 مرة)",
+    // 🌅 أذكار الصباح
+    "أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ، لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ (مرة واحدة)",
+    "اللَّهُمَّ مَا أَصْبَحَ بِي مِنْ نِعْمَةٍ أَوْ بِأَحَدٍ مِنْ خَلْقِكَ فَمِنْكَ وَحْدَكَ لَا شَرِيكَ لَكَ، فَلَكَ الْحَمْدُ وَلَكَ الشُّكْرُ (مرة واحدة)",
+    "حَسْبِيَ اللَّهُ لَا إِلَهَ إِلَّا هُوَ، عَلَيْهِ تَوَكَّلْتُ وَهُوَ رَبُّ الْعَرْشِ الْعَظِيمِ (7 مرات)",
+    "بِسْمِ اللَّهِ الَّذِي لَا يَضُرُّ مَعَ اسْمِهِ شَيْءٌ فِي الْأَرْضِ وَلَا فِي السَّمَاءِ وَهُوَ السَّمِيعُ الْعََلِيمُ (3 مرات)",
+    "اللَّهُمَّ بِكَ أَصْبَحْنَا، وَبِكَ أَمْسَيْنَا، وَبِكَ نَحْيَا، وَبِكَ نَمُوتُ، وَإِلَيْكَ النُّشُورُ (مرة واحدة)",
+    "أَعُوذُ بِكَلِمَاتِ اللَّهِ التَّامَّاتِ مِنْ شَرِّ مَا خَلَقَ (3 مرات)",
+    "اللَّهُمَّ إِنِّي أَصْبَحْتُ أُشْهِدُكَ، وَأُشْهِدُ حَمَلَةَ عَرْشِكَ، وَمَلَائِكَتَكَ، وَجَمِيعَ خَلْقِكَ، أَنَّكَ أَنْتَ اللَّهُ لَا إِلَهَ إِلَّا أَنْتَ وَحْدَكَ لَا شَرِيكَ لَكَ، وَأَنَّ مُحَمَّدًا عَبْدُكَ وَرَسُولُكَ (4 مرات)",
+    "سُبْحَانَ اللَّهِ وَبِحَمْدِهِ (100 مرة)",
+    "لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ (100 مرة)",
 
-            // 🌆 أذكار المساء
-            "أَمْسَيْنَا وَأَمْسَى الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ، لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ (مرة واحدة)",
-            "اللَّهُمَّ مَا أَمْسَى بِي مِنْ نِعْمَةٍ أَوْ بِأَحَدٍ مِنْ خَلْقِكَ فَمِنْكَ وَحْدَكَ لَا شَرِيكَ لَكَ، فَلَكَ الْحَمْدُ وَلَكَ الشُّكْرُ (مرة واحدة)",
-            "اللَّهُمَّ بِكَ أَمْسَيْنَا، وَبِكَ أَصْبَحْنَا، وَبِكَ نَحْيَا، وَبِكَ نَمُوتُ، وَإِلَيْكَ الْمَصِيرُ (مرة واحدة)",
+    // 🌆 أذكار المساء
+    "أَمْسَيْنَا وَأَمْسَى الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ، لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ (مرة واحدة)",
+    "اللَّهُمَّ مَا أَمْسَى بِي مِنْ نِعْمَةٍ أَوْ بِأَحَدٍ مِنْ خَلْقِكَ فَمِنْكَ وَحْدَكَ لَا شَرِيكَ لَكَ، فَلَكَ الْحَمْدُ وَلَكَ الشُّكْرُ (مرة واحدة)",
+    "اللَّهُمَّ بِكَ أَمْسَيْنَا، وَبِكَ أَصْبَحْنَا، وَبِكَ نَحْيَا، وَبِكَ نَمُوتُ، وَإِلَيْكَ الْمَصِيرُ (مرة واحدة)",
 
-            // 🙏 أذكار بعد الصلاة
-            "أَسْتَغْفِرُ اللَّهَ (3 مرات) وَاللَّهُمَّ أَنْتَ السَّلَامُ وَمِنْكَ السَّلَامُ، تَبَارَكْتَ يَا ذَا الْجَلَالِ وَالْإِكْرَامِ",
-            "سُبْحَانَ اللَّهِ (33 مرة)، الْحَمْدُ لِلَّهِ (33 مرة)، اللَّهُ أَكْبَرُ (33 مرة)، لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ (مرة واحدة)",
+    // 🙏 أذكار بعد الصلاة
+    "أَسْتَغْفِرُ اللَّهَ (3 مرات) وَاللَّهُمَّ أَنْتَ السَّلَامُ وَمِنْكَ السَّلَامُ، تَبَارَكْتَ يَا ذَا الْجَلَالِ وَالْإِكْرَامِ",
+    "سُبْحَانَ اللَّهِ (33 مرة)، الْحَمْدُ لِلَّهِ (33 مرة)، اللَّهُ أَكْبَرُ (33 مرة)، لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ (مرة واحدة)",
 
-            // 🌙 أذكار النوم
-            "بِاسْمِكَ رَبِّي وَضَعْتُ جَنْبِي، وَبِكَ أَرْفَعُهُ، فَإِنْ أَمْسَكْتَ نَفْسِي فَارْحَمْهَا، وَإِنْ أَرْسَلْتَهَا فَاحْفَظْهَا بِمَا تَحْفَظُ بِهِ عِبَادَكَ الصَّالِحِينَ",
-            "اللَّهُمَّ قِنِي عَذَابَكَ يَوْمَ تَبْعَثُ عِبَادَكَ",
-            "سُبْحَانَ اللَّهِ (33 مرة)، الْحَمْدُ لِلَّهِ (33 مرة)، اللَّهُ أَكْبَرُ (34 مرة)",
+    // 🌙 أذكار النوم
+    "بِاسْمِكَ رَبِّي وَضَعْتُ جَنْبِي، وَبِكَ أَرْفَعُهُ، فَإِنْ أَمْسَكْتَ نَفْسِي فَارْحَمْهَا، وَإِنْ أَرْسَلْتَهَا فَاحْفَظْهَا بِمَا تَحْفَظُ بِهِ عِبَادَكَ الصَّالِحِينَ",
+    "اللَّهُمَّ قِنِي عَذَابَكَ يَوْمَ تَبْعَثُ عِبَادَكَ",
+    "سُبْحَانَ اللَّهِ (33 مرة)، الْحَمْدُ لِلَّهِ (33 مرة)، اللَّهُ أَكْبَرُ (34 مرة)",
 
-            // 🚶‍♂️ أذكار دخول / خروج المنزل
-            "بِسْمِ اللَّهِ، تَوَكَّلْتُ عَلَى اللَّهِ، وَلَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ",
-            "اللَّهُمَّ إِنِّي أَعُوذُ بِكَ أَنْ أَضِلَّ، أَوْ أُضَلَّ، أَوْ أَزِلَّ، أَوْ أُزَلَّ، أَوْ أَظْلِمَ، أَوْ أُظْلَمَ، أَوْ أَجْهَلَ، أَوْ يُجْهَلَ عَلَيَّ",
+    // 🚶‍♂️ أذكار دخول / خروج المنزل
+    "بِسْمِ اللَّهِ، تَوَكَّلْتُ عَلَى اللَّهِ، وَلَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ",
+    "اللَّهُمَّ إِنِّي أَعُوذُ بِكَ أَنْ أَضِلَّ، أَوْ أُضَلَّ، أَوْ أَزِلَّ، أَوْ أُزَلَّ، أَوْ أَظْلِمَ، أَوْ أُظْلَمَ، أَوْ أَجْهَلَ، أَوْ يُجْهَلَ عَلَيَّ",
 
-            // ✈️ أذكار السفر
-            "سُبْحَانَ الَّذِي سَخَّرَ لَنَا هَذَا وَمَا كُنَّا لَهُ مُقْرِنِينَ وَإِنَّا إِلَى رَبِّنَا لَمُنْقَلِبُونَ",
-            "اللَّهُمَّ إِنَّا نَسْأَلُكَ فِي سَفَرِنَا هَذَا الْبِرَّ وَالتَّقْوَى، وَمِنَ الْعَمَلِ مَا تَرْضَى...",
+    // ✈️ أذكار السفر
+    "سُبْحَانَ الَّذِي سَخَّرَ لَنَا هَذَا وَمَا كُنَّا لَهُ مُقْرِنِينَ وَإِنَّا إِلَى رَبِّنَا لَمُنْقَلِبُونَ",
+    "اللَّهُمَّ إِنَّا نَسْأَلُكَ فِي سَفَرِنَا هَذَا الْبِرَّ وَالتَّقْوَى، وَمِنَ الْعَمَلِ مَا تَرْضَى...",
 
-            // 🤲 أدعية عامة
-            "رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةَ حَسَنَةً وَقِنَا عَذَابَ النَّارِ",
-            "رَبِّ اغْفِرْ لِي وَلِوَالِدَيَّ وَلِلْمُؤْمِنِينَ يَوْمَ يَقُومُ الْحِسَابُ",
-            "اللَّهُمَّ اغْفِرْ لِي خَطِيئَتِي وَجَهْلِي، وَإِسْرَافِي فِي أَمْرِي، وَمَا أَنْتَ أَعْلَمُ بِهِ مِنِّي",
-            "اللَّهُمَّ أَعِنِّي عَلَى ذِكْرِكَ وَشُكْرِكَ وَحُسْنِ عِبَادَتِكَ",
-            "اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنْ زَوَالِ نِعْمَتِكَ، وَتَحَوُّلِ عَافِيَتِكَ، وَفُجَاءَةِ نِقْمَتِكَ، وَجَمِيعِ سَخَطِكَ",
-            "اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْبُخْلِ، وَأَعُوذُ بِكَ مِنَ الْجُبْنِ، وَأَعُوذُ بِكَ أَنْ أُرَدَّ إِلَى أَرْذَلِ الْعُمُرِ، وَأَعُوذُ بِكَ مِنْ فِتْنَةِ الدُّنْيَا وَعَذَابِ الْقَبْرِ"
-        ];
+    // 🤲 أدعية عامة
+    "رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةَ حَسَنَةً وَقِنَا عَذَابَ النَّارِ",
+    "رَبِّ اغْفِرْ لِي وَلِوَالِدَيَّ وَلِلْمُؤْمِنِينَ يَوْمَ يَقُومُ الْحِسَابُ",
+    "اللَّهُمَّ اغْفِرْ لِي خَطِيئَتِي وَجَهْلِي، وَإِسْرَافِي فِي أَمْرِي، وَمَا أَنْتَ أَعْلَمُ بِهِ مِنِّي",
+    "اللَّهُمَّ أَعِنِّي عَلَى ذِكْرِكَ وَشُكْرِكَ وَحُسْنِ عِبَادَتِكَ",
+    "اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنْ زَوَالِ نِعْمَتِكَ، وَتَحَوُّلِ عَافِيَتِكَ، وَفُجَاءَةِ نِقْمَتِكَ، وَجَمِيعِ سَخَطِكَ",
+    "اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنَ الْبُخْلِ، وَأَعُوذُ بِكَ مِنَ الْجُبْنِ، وَأَعُوذُ بِكَ أَنْ أُرَدَّ إِلَى أَرْذَلِ الْعُمُرِ، وَأَعُوذُ بِكَ مِنْ فِتْنَةِ الدُّنْيَا وَعَذَابِ الْقَبْرِ"
+];
+
 
         // متغيرات عامة للأذونات والموقع
         let userLocation = null;
         let permissionsStatus = {
             geolocation: false,
-            notifications: true
+            notifications: false
         };
-
-        // 🔧 إصلاح: دالة آمنة لتحميل الأذكار المخصصة
-        function loadCustomAzkar() {
-            const customAzkarList = document.getElementById('custom-azkar-list');
-            
-            if (!customAzkarList) {
-                console.warn('⚠️ عنصر custom-azkar-list غير موجود في الواجهة حالياً.');
-                return;
-            }
-            
-            const customAzkar = JSON.parse(localStorage.getItem('custom_azkar') || '[]');
-            customAzkarList.innerHTML = '';
-            
-            if (customAzkar.length === 0) {
-                customAzkarList.innerHTML = '<div style="text-align: center; padding: 10px; color: #ccc;">لا توجد أذكار مضافة</div>';
-                return;
-            }
-            
-            customAzkar.forEach((azkar, index) => {
-                const azkarItem = document.createElement('div');
-                azkarItem.className = 'custom-azkar-item';
-                azkarItem.innerHTML = `
-                    <span>${azkar.substring(0, 50)}${azkar.length > 50 ? '...' : ''}</span>
-                    <button class="remove-azkar" data-index="${index}"><i class="fas fa-trash"></i></button>
-                `;
-                customAzkarList.appendChild(azkarItem);
-            });
-            
-            document.querySelectorAll('.remove-azkar').forEach(button => {
-                button.addEventListener('click', function() {
-                    const index = parseInt(this.getAttribute('data-index'));
-                    removeCustomAzkar(index);
-                });
-            });
-        }
-
-        // إضافة الأذكار المخصصة
-        function addCustomAzkar() {
-            const newAzkarInput = document.getElementById('new-azkar');
-            const newAzkar = newAzkarInput.value.trim();
-
-            if (newAzkar) {
-                const customAzkar = JSON.parse(localStorage.getItem('custom_azkar') || '[]');
-                customAzkar.push(newAzkar);
-                localStorage.setItem('custom_azkar', JSON.stringify(customAzkar));
-                loadCustomAzkar();
-                newAzkarInput.value = '';
-                alert('✅ تم إضافة الذكر بنجاح!');
-            } else {
-                alert('❌ الرجاء كتابة ذكر قبل الإضافة');
-            }
-        }
-
-        // حذف الأذكار المخصصة
-        function removeCustomAzkar(index) {
-            const customAzkar = JSON.parse(localStorage.getItem('custom_azkar') || '[]');
-            
-            if (index >= 0 && index < customAzkar.length) {
-                customAzkar.splice(index, 1);
-                localStorage.setItem('custom_azkar', JSON.stringify(customAzkar));
-                loadCustomAzkar();
-            }
-        }
-
-        // 🔧 إصلاح: دالة جديدة لجلب الأذكار من المصادر المحلية فقط
-        function fetchAzkar() {
-            const azkarListElement = document.getElementById('azkar-list');
-            
-            if (!azkarListElement) {
-                console.error('❌ عنصر azkar-list غير موجود في الصفحة');
-                return;
-            }
-            
-            azkarListElement.innerHTML = `
-                <div class="loading">
-                    <i class="fas fa-spinner fa-spin"></i> جاري تحميل الأذكار...
-                </div>
-            `;
-
-            // دمج الأذكار المدمجة مع المخصصة من localStorage
-            const customAzkar = JSON.parse(localStorage.getItem('custom_azkar') || '[]');
-            const allAzkar = [...azkarList, ...customAzkar];
-            
-            // خليط عشوائي من القائمة الكاملة
-            const shuffledAzkar = [...allAzkar].sort(() => 0.5 - Math.random());
-            const selectedAzkar = shuffledAzkar.slice(0, 3); // عرض 3 أذكار عشوائية
-
-            updateAzkarDisplay(selectedAzkar);
-            
-            // إعداد إشعارات الأذكار
-            setupAzkarNotifications();
-            
-            console.log('✅ تم تحميل الأذكار من المصادر المحلية بنجاح');
-        }
-
-        // دالة مساعدة لعرض الأذكار
-        function updateAzkarDisplay(azkarArray) {
-            const azkarListElement = document.getElementById('azkar-list');
-            
-            if (!azkarListElement) {
-                console.error('❌ عنصر azkar-list غير موجود في الصفحة');
-                return;
-            }
-            
-            azkarListElement.innerHTML = '';
-            
-            azkarArray.forEach(zekr => {
-                const azkarItem = document.createElement('div');
-                azkarItem.className = 'azkar-item';
-                azkarItem.innerHTML = `<p>${zekr}</p>`;
-                azkarListElement.appendChild(azkarItem);
-            });
-        }
-
-        // 🌤️ إصلاح: دالة جديدة لجلب الطقس من OpenWeatherMap
-        function fetchWeather() {
-            const weatherInfoElement = document.getElementById('weather-info');
-            
-            if (!weatherInfoElement) {
-                console.error('❌ عنصر weather-info غير موجود في الصفحة');
-                return;
-            }
-            
-            weatherInfoElement.innerHTML = `
-                <div class="loading">
-                    <i class="fas fa-spinner fa-spin"></i> جاري تحميل بيانات الطقس...
-                </div>
-            `;
-
-            // استخدام موقع الحالي إذا كان متاحاً
-            if (userLocation && permissionsStatus.geolocation) {
-                fetchWeatherWithLocation();
-                return;
-            }
-
-            // استخدام موقع افتراضي (الرباط)
-            const city = DEFAULT_CITY;
-            const country = DEFAULT_COUNTRY.toLowerCase();
-            
-            // استخدام OpenWeatherMap API مع البحث باسم المدينة
-            const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city},${country}&appid=${OPENWEATHER_API_KEY}&units=metric&lang=ar`;
-            
-            fetch(apiUrl)
-                .then(response => {
-                    if (!response.ok) throw new Error(`Weather API failed: ${response.status}`);
-                    return response.json();
-                })
-                .then(data => {
-                    updateWeather(data, `${city}, ${DEFAULT_COUNTRY}`);
-                    console.log('✅ تم تحميل بيانات الطقس بنجاح (الموقع الافتراضي)');
-                })
-                .catch(error => {
-                    console.error('❌ خطأ في جلب بيانات الطقس:', error);
-                    fetchWeatherFallback(`${city}, ${DEFAULT_COUNTRY}`);
-                });
-        }
-
-        // 🌤️ دالة لجلب الطقس باستخدام الموقع الحقيقي
-        function fetchWeatherWithLocation() {
-            if (!userLocation) {
-                fetchWeather();
-                return;
-            }
-
-            const weatherInfoElement = document.getElementById('weather-info');
-            if (!weatherInfoElement) return;
-            
-            weatherInfoElement.innerHTML = `
-                <div class="loading">
-                    <i class="fas fa-spinner fa-spin"></i> جاري تحميل بيانات الطقس لموقعك...
-                </div>
-            `;
-
-            const { latitude, longitude } = userLocation;
-            
-            // استخدام OpenWeatherMap API مع الإحداثيات
-            const apiUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${OPENWEATHER_API_KEY}&units=metric&lang=ar`;
-            
-            fetch(apiUrl)
-                .then(response => {
-                    if (!response.ok) throw new Error(`Weather API failed: ${response.status}`);
-                    return response.json();
-                })
-                .then(data => {
-                    const locationName = data.name ? `${data.name}, ${data.sys.country}` : "موقعك الحالي";
-                    updateWeather(data, locationName);
-                    
-                    // إرسال إشعار إذا كان مفعلاً
-                    const savedSettings = JSON.parse(localStorage.getItem('weather_settings') || '{}');
-                    if (savedSettings.weatherNotification && permissionsStatus.notifications) {
-                        const temp = Math.round(data.main.temp);
-                        sendNotification(
-                            '🌤️ حالة الطقس',
-                            `درجة الحرارة: ${temp}°م - ${data.weather[0].description}`,
-                            '🌤️',
-                            'weather'
-                        );
-                    }
-                    
-                    console.log('✅ تم تحميل بيانات الطقس بنجاح (الموقع الحقيقي)');
-                })
-                .catch(error => {
-                    console.error('❌ خطأ في جلب بيانات الطقس بالموقع:', error);
-                    fetchWeatherFallback("موقعك الحالي");
-                });
-        }
-
-        // 🌤️ دالة احتياطية للطقس
-        function fetchWeatherFallback(locationName) {
-            // بيانات طقس واقعية محاكاة
-            const weatherConditions = [
-                { condition: "مشمس", temp: 25, humidity: 45, wind: 15, icon: "☀️" },
-                { condition: "غائم جزئياً", temp: 22, humidity: 60, wind: 12, icon: "⛅" },
-                { condition: "غائم", temp: 20, humidity: 70, wind: 10, icon: "☁️" },
-                { condition: "ممطر خفيف", temp: 18, humidity: 85, wind: 8, icon: "🌦️" }
-            ];
-            
-            const randomWeather = weatherConditions[Math.floor(Math.random() * weatherConditions.length)];
-            
-            const weatherData = {
-                main: {
-                    temp: randomWeather.temp + Math.floor(Math.random() * 5) - 2,
-                    humidity: randomWeather.humidity + Math.floor(Math.random() * 10) - 5
-                },
-                weather: [{ description: randomWeather.condition }],
-                wind: { speed: randomWeather.wind + Math.floor(Math.random() * 5) - 2 }
-            };
-            
-            updateWeather(weatherData, locationName);
-            
-            console.log(`🌤️ استخدام بيانات طقس احتياطية لـ ${locationName}`);
-        }
-
-        // 🌤️ تحديث دالة عرض الطقس للتعامل مع OpenWeatherMap
-        function updateWeather(weatherData, locationName = `${DEFAULT_CITY}, ${DEFAULT_COUNTRY}`) {
-            const weatherInfoElement = document.getElementById('weather-info');
-            const weatherLocationElement = document.getElementById('weather-location');
-            
-            if (!weatherInfoElement || !weatherLocationElement) return;
-            
-            weatherLocationElement.innerHTML = `📍 الموقع: ${locationName}`;
-
-            if (weatherData && weatherData.main) {
-                const temp = convertToArabicDigits(Math.round(weatherData.main.temp).toString());
-                const humidity = convertToArabicDigits(weatherData.main.humidity.toString());
-                const windSpeed = convertToArabicDigits(Math.round(weatherData.wind.speed * 3.6).toString());
-                const condition = weatherData.weather[0]?.description || "مشمس";
-                const conditionIcon = getWeatherIcon(condition);
-
-                weatherInfoElement.innerHTML = `
-                    <div class="weather-item" style="text-align: center; font-size: 2rem; margin-bottom: 10px;">
-                        ${conditionIcon}
-                    </div>
-                    <div class="weather-item">
-                        <span>الحالة:</span>
-                        <span>${condition}</span>
-                    </div>
-                    <div class="weather-item">
-                        <span>درجة الحرارة:</span>
-                        <span>${temp}°م</span>
-                    </div>
-                    <div class="weather-item">
-                        <span>الرطوبة:</span>
-                        <span>${humidity}%</span>
-                    </div>
-                    <div class="weather-item">
-                        <span>الرياح:</span>
-                        <span>${windSpeed} كم/س</span>
-                    </div>
-                `;
-            } else {
-                weatherInfoElement.innerHTML = `
-                    <div class="error">
-                        ❌ تعذر تحميل بيانات الطقس
-                    </div>
-                `;
-            }
-        }
-
-        // 🌤️ دالة للحصول على رمز حالة الطقس
-        function getWeatherIcon(condition) {
-            const conditionMap = {
-                'مشمس': '☀️',
-                'صافي': '☀️',
-                'غائم جزئياً': '⛅',
-                'غائم': '☁️',
-                'ممطر': '🌧️',
-                'ممطر خفيف': '🌦️',
-                'عاصف': '💨',
-                'ثلجي': '❄️',
-                'ضباب': '🌫️',
-                'عاصفة رعدية': '⛈️',
-                'رعد': '⛈️'
-            };
-            
-            for (const [key, icon] of Object.entries(conditionMap)) {
-                if (condition.includes(key)) {
-                    return icon;
-                }
-            }
-            
-            return '🌤️';
-        }
-
-        // 🔧 باقي الدوال بدون تغيير (للبساطة، سيتم تضمين الدوال الأساسية فقط)
-        // تحويل الأرقام المشرقية إلى عربية
-        function convertToArabicDigits(str) {
-            if (!str) return "";
-            const arabicToEnglishMap = {
-                '٠': '0', '١': '1', '٢': '2', '٣': '3', '٤': '4',
-                '٥': '5', '٦': '6', '٧': '7', '٨': '8', '٩': '9'
-            };
-            return str.replace(/[٠-٩]/g, digit => arabicToEnglishMap[digit] || digit);
-        }
-
-        // جلب التاريخ الهجري
-        function fetchHijriDate() {
-            const currentDate = new Date();
-            const formattedDate = `${currentDate.getDate()}-${currentDate.getMonth() + 1}-${currentDate.getFullYear()}`;
-
-            fetch(`https://api.aladhan.com/v1/gToH/${formattedDate}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.code === 200) {
-                        const hijri = data.data.hijri;
-                        const formattedHijriDate = `${hijri.day} ${hijri.month.ar} ${hijri.year} هـ`;
-                        const arabicHijriDate = convertToArabicDigits(formattedHijriDate);
-                        hijriDateElement.innerHTML = `🗓 التاريخ الهجري: ${arabicHijriDate}<br>🌙 ${hijri.weekday.ar}`;
-                        
-                        window.lastHijriDate = hijriDateElement.innerHTML;
-
-                        const gregorianDate = currentDate.toLocaleDateString('ar-MA', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric',
-                            weekday: 'long'
-                        });
-                        const arabicGregorianDate = convertToArabicDigits(gregorianDate);
-                        gregorianDateElement.innerHTML = `📅 التاريخ الميلادي: ${arabicGregorianDate}`;
-                        window.lastGregorianDate = arabicGregorianDate;
-                    } else {
-                        setDefaultDates();
-                    }
-                })
-                .catch(error => {
-                    console.error('Error fetching hijri date:', error);
-                    setDefaultDates();
-                });
-
-            function setDefaultDates() {
-                const today = new Date();
-                const hijriDate = today.toLocaleDateString('ar-MA', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                });
-                hijriDateElement.innerHTML = `🗓 التاريخ الهجري: ${convertToArabicDigits(hijriDate)}`;
-                window.lastHijriDate = hijriDateElement.innerHTML;
-
-                const gregorianDate = today.toLocaleDateString('ar-MA', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric',
-                    weekday: 'long'
-                });
-                const arabicGregorianDate = convertToArabicDigits(gregorianDate);
-                gregorianDateElement.innerHTML = `📅 التاريخ الميلادي: ${arabicGregorianDate}`;
-                window.lastGregorianDate = arabicGregorianDate;
-            }
-        }
-
-        // تحديث الوقت والتاريخ
-        function updateDateTime() {
-            const now = new Date();
-
-            const timeString = now.toLocaleTimeString('ar-SA', {
-                hour12: true,
-                hour: 'numeric',
-                minute: 'numeric',
-                second: 'numeric'
-            });
-
-            const arabicTime = convertToArabicDigits(timeString);
-            currentTimeElement.textContent = `⏰ ${arabicTime}`;
-
-            if (compactTime) compactTime.textContent = arabicTime;
-            if (compactGregorianDate && window.lastGregorianDate) {
-                const shortGregorianDate = window.lastGregorianDate.split('،')[0];
-                compactGregorianDate.textContent = shortGregorianDate;
-            }
-            if (compactHijriDate && window.lastHijriDate) {
-                const shortHijriDate = window.lastHijriDate.split('<br>')[0].replace('🗓 التاريخ الهجري: ', '');
-                compactHijriDate.textContent = shortHijriDate;
-            }
-        }
-
-        // جلب أوقات الصلاة
-        function fetchPrayerTimes() {
-            const savedPrayerSettings = JSON.parse(localStorage.getItem('prayer_settings') || '{}');
-            const method = savedPrayerSettings.method || DEFAULT_METHOD;
-
-            const currentDate = new Date();
-            const formattedDate = `${currentDate.getDate()}-${currentDate.getMonth() + 1}-${currentDate.getFullYear()}`;
-
-            document.getElementById('prayer-times').innerHTML = `
-                <div class="loading">
-                    <i class="fas fa-spinner fa-spin"></i> جاري تحميل أوقات الصلاة...
-                </div>
-            `;
-
-            let apiUrl;
-            let locationText = `${DEFAULT_CITY}, ${DEFAULT_COUNTRY}`;
-
-            if (userLocation && permissionsStatus.geolocation) {
-                apiUrl = `https://api.aladhan.com/v1/timings/${formattedDate}?latitude=${userLocation.latitude}&longitude=${userLocation.longitude}&method=${method}`;
-                locationText = "موقعك الحالي";
-            } else {
-                const location = savedPrayerSettings.location || DEFAULT_CITY;
-                const country = DEFAULT_COUNTRY;
-                apiUrl = `https://api.aladhan.com/v1/timingsByCity/${formattedDate}?city=${encodeURIComponent(location)}&country=${encodeURIComponent(country)}&method=${method}`;
-                locationText = `${location}, ${country}`;
-            }
-
-            fetch(apiUrl)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.code === 200) {
-                        const timings = data.data.timings;
-                        const meta = data.data.meta;
-                        updatePrayerTimes(timings, meta, locationText);
-                        setupPrayerNotifications(timings);
-                    } else {
-                        showPrayerTimesError();
-                    }
-                })
-                .catch(error => {
-                    console.error('Error fetching prayer times:', error);
-                    showPrayerTimesError();
-                });
-        }
-
-        function showPrayerTimesError() {
-            document.getElementById('prayer-times').innerHTML = `
-                <div class="error">
-                    ❌ فشل في تحميل أوقات الصلاة
-                </div>
-            `;
-        }
-
-        // تحديث عرض أوقات الصلاة
-        function updatePrayerTimes(timings, meta, locationText = `${DEFAULT_CITY}, ${DEFAULT_COUNTRY}`) {
-            const prayerTimesElement = document.getElementById('prayer-times');
-            prayerLocationElement.innerHTML = `📍 الموقع: ${locationText}`;
-            prayerTimesElement.innerHTML = '';
-
-            const savedPrayerSettings = JSON.parse(localStorage.getItem('prayer_settings') || '{}');
-            const timeFormat = savedPrayerSettings.timeFormat || '12';
-
-            const prayers = [
-                { name: '🌅 الفجر', time: timings.Fajr, key: 'Fajr' },
-                { name: '🌞 الشروق', time: timings.Sunrise, key: 'Sunrise' },
-                { name: '☀️ الظهر', time: timings.Dhuhr, key: 'Dhuhr' },
-                { name: '🌇 العصر', time: timings.Asr, key: 'Asr' },
-                { name: '🌆 المغرب', time: timings.Maghrib, key: 'Maghrib' },
-                { name: '🌙 العشاء', time: timings.Isha, key: 'Isha' }
-            ];
-
-            prayers.forEach(prayer => {
-                const timeItem = document.createElement('div');
-                timeItem.className = 'prayer-time-item';
-                timeItem.id = `prayer-${prayer.key}`;
-
-                const [hours, minutes] = prayer.time.split(':');
-                let timeString;
-
-                if (timeFormat === '24') {
-                    timeString = `${hours}:${minutes}`;
-                } else {
-                    const hour = parseInt(hours);
-                    const period = hour >= 12 ? 'م' : 'ص';
-                    const formattedHour = hour % 12 || 12;
-                    timeString = `${formattedHour}:${minutes} ${period}`;
-                }
-
-                const arabicTime = convertToArabicDigits(timeString);
-                timeItem.textContent = `${prayer.name}: ${arabicTime}`;
-                prayerTimesElement.appendChild(timeItem);
-            });
-
-            highlightCurrentPrayer(timings);
-        }
 
         // دالة لتشغيل الأذان الصوتي
         function playAthanSound(soundType = 'default') {
@@ -1746,24 +1222,133 @@
                 'al-aqsa': 'https://www.islamweb.net/athan/athan4.mp3'
             };
 
-            try {
-                const audio = new Audio(soundUrls[soundType]);
-                audio.volume = 0.7;
-                audio.preload = 'auto';
+            // إنشاء عنصر صوت
+            const audio = new Audio(soundUrls[soundType]);
+            
+            // إعداد خصائص الصوت
+            audio.volume = 0.7;
+            audio.preload = 'auto';
+            
+            // محاولة التشغيل
+            audio.play().catch(error => {
+                console.log('❌ تعذر تشغيل الأذان الصوتي:', error);
                 
-                audio.play().catch(error => {
-                    console.log('❌ تعذر تشغيل الأذان الصوتي:', error);
-                    playFallbackAthan();
-                });
-                
-                showAudioControls(audio, soundType);
-            } catch (error) {
-                console.log('❌ خطأ في تشغيل الأذان:', error);
+                // بديل: استخدام صوت من متصفح المستخدم
+                playFallbackAthan();
+            });
+            
+            // إظهار عناصر التحكم بالصوت
+            showAudioControls(audio, soundType);
+        }
+
+        // بديل صوتي إذا فشل تحميل الملف
+        function playFallbackAthan() {
+            // استخدام Web Audio API لإنشاء نغمة بديلة
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            // نغمة الأذان التقريبي
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(440, audioContext.currentTime);
+            oscillator.frequency.setValueAtTime(880, audioContext.currentTime + 1);
+            oscillator.frequency.setValueAtTime(440, audioContext.currentTime + 2);
+            
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 3);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 3);
+            
+            console.log('🔊 تشغيل نغمة الأذان البديلة');
+        }
+
+        // عرض عناصر التحكم بالصوت
+        function showAudioControls(audio, soundType) {
+            // إزالة عناصر التحكم السابقة إذا وجدت
+            const existingControls = document.getElementById('athan-controls');
+            if (existingControls) {
+                existingControls.remove();
             }
+            
+            // إنشاء عناصر التحكم
+            const controls = document.createElement('div');
+            controls.id = 'athan-controls';
+            controls.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                left: 20px;
+                background: var(--modal-bg);
+                padding: 15px;
+                border-radius: 10px;
+                border: 2px solid var(--primary-color);
+                z-index: 10000;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+                min-width: 200px;
+            `;
+            
+            controls.innerHTML = `
+                <div style="text-align: center; margin-bottom: 10px;">
+                    <strong>🕌 الأذان</strong>
+                    <br>
+                    <small>${getAthanName(soundType)}</small>
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: center;">
+                    <button id="pause-athan" style="padding: 5px 10px; background: #f44336; color: white; border: none; border-radius: 5px; cursor: pointer;">إيقاف</button>
+                    <button id="resume-athan" style="padding: 5px 10px; background: #4caf50; color: white; border: none; border-radius: 5px; cursor: pointer;">استئناف</button>
+                    <button id="close-athan" style="padding: 5px 10px; background: #666; color: white; border: none; border-radius: 5px; cursor: pointer;">إغلاق</button>
+                </div>
+                <div style="margin-top: 10px;">
+                    <input type="range" id="volume-control" min="0" max="1" step="0.1" value="0.7" style="width: 100%;">
+                    <div style="text-align: center; font-size: 0.8em;">الصوت</div>
+                </div>
+            `;
+            
+            document.body.appendChild(controls);
+            
+            // إضافة event listeners
+            document.getElementById('pause-athan').addEventListener('click', () => {
+                audio.pause();
+            });
+            
+            document.getElementById('resume-athan').addEventListener('click', () => {
+                audio.play().catch(console.error);
+            });
+            
+            document.getElementById('close-athan').addEventListener('click', () => {
+                audio.pause();
+                controls.remove();
+            });
+            
+            document.getElementById('volume-control').addEventListener('input', (e) => {
+                audio.volume = e.target.value;
+            });
+            
+            // إغلاق تلقائي بعد انتهاء الصوت
+            audio.addEventListener('ended', () => {
+                setTimeout(() => {
+                    controls.remove();
+                }, 3000);
+            });
+        }
+
+        // الحصول على اسم نوع الأذان
+        function getAthanName(type) {
+            const names = {
+                'default': 'أذان تقليدي',
+                'makkah': 'أذان مكة',
+                'madina': 'أذان المدينة', 
+                'al-aqsa': 'أذان الأقصى'
+            };
+            return names[type] || 'أذان';
         }
 
         // دالة جديدة لتفعيل جميع الإشعارات تلقائياً
         function enableAllNotifications() {
+            // إعدادات الصلاة - تفعيل جميع الإشعارات
             const prayerSettings = JSON.parse(localStorage.getItem('prayer_settings') || '{}');
             prayerSettings.prayerTimeNotification = true;
             prayerSettings.prayerBeforeNotification = true;
@@ -1772,11 +1357,13 @@
             prayerSettings.athanSound = 'default';
             localStorage.setItem('prayer_settings', JSON.stringify(prayerSettings));
 
+            // إعدادات الطقس - تفعيل الإشعارات
             const weatherSettings = JSON.parse(localStorage.getItem('weather_settings') || '{}');
             weatherSettings.weatherNotification = true;
             weatherSettings.weatherInterval = 60;
             localStorage.setItem('weather_settings', JSON.stringify(weatherSettings));
 
+            // إعدادات الأذكار - تفعيل جميع الإشعارات
             const azkarSettings = JSON.parse(localStorage.getItem('azkar_settings') || '{}');
             azkarSettings.azkarNotification = true;
             azkarSettings.azkarInterval = 30;
@@ -1784,6 +1371,170 @@
             localStorage.setItem('azkar_settings', JSON.stringify(azkarSettings));
 
             console.log('✅ تم تفعيل جميع الإشعارات تلقائياً');
+        }
+
+        // طلب أذونات الموقع والإشعارات تلقائياً
+        async function requestPermissions() {
+            try {
+                // طلب إذن الموقع الجغرافي
+                if ('geolocation' in navigator) {
+                    const savedPermissions = JSON.parse(localStorage.getItem('app_permissions') || '{}');
+
+                    if (!savedPermissions.geolocation_asked) {
+                        navigator.geolocation.getCurrentPosition(
+                            (position) => {
+                                userLocation = {
+                                    latitude: position.coords.latitude,
+                                    longitude: position.coords.longitude
+                                };
+                                permissionsStatus.geolocation = true;
+
+                                // حفظ حالة الإذن
+                                const permissions = JSON.parse(localStorage.getItem('app_permissions') || '{}');
+                                permissions.geolocation = true;
+                                permissions.geolocation_asked = true;
+                                permissions.location_data = userLocation;
+                                localStorage.setItem('app_permissions', JSON.stringify(permissions));
+
+                                console.log('✅ تم الحصول على إذن الموقع الجغرافي');
+                                updateCoordinatesDisplay();
+
+                                // تحديث البيانات باستخدام الموقع الحقيقي
+                                fetchPrayerTimes();
+                                fetchWeatherWithLocation();
+                            },
+                            (error) => {
+                                console.log('❌ تم رفض إذن الموقع الجغرافي أو حدث خطأ:', error.message);
+
+                                // حفظ أن المستخدم رفض الإذن
+                                const permissions = JSON.parse(localStorage.getItem('app_permissions') || '{}');
+                                permissions.geolocation = false;
+                                permissions.geolocation_asked = true;
+                                localStorage.setItem('app_permissions', JSON.stringify(permissions));
+
+                                // استخدام الموقع الافتراضي
+                                fetchPrayerTimes();
+                                fetchWeather();
+                            },
+                            {
+                                enableHighAccuracy: true,
+                                timeout: 10000,
+                                maximumAge: 300000 // 5 دقائق
+                            }
+                        );
+                    } else if (savedPermissions.geolocation && savedPermissions.location_data) {
+                        // استخدام الموقع المحفوظ
+                        userLocation = savedPermissions.location_data;
+                        permissionsStatus.geolocation = true;
+                        updateCoordinatesDisplay();
+                        fetchPrayerTimes();
+                        fetchWeatherWithLocation();
+                    } else {
+                        // استخدام الموقع الافتراضي
+                        fetchPrayerTimes();
+                        fetchWeather();
+                    }
+                }
+
+                // طلب إذن الإشعارات - تحسين الذاكرة
+                if ('Notification' in window) {
+                    const savedPermissions = JSON.parse(localStorage.getItem('app_permissions') || '{}');
+                    
+                    // إذا لم يسبق طلب الإذن أو إذا كان الإذن ممنوعاً سابقاً
+                    if ((Notification.permission === 'default' && !savedPermissions.notifications_asked) || 
+                        (Notification.permission === 'denied' && !savedPermissions.notifications_asked)) {
+                        
+                        const permission = await Notification.requestPermission();
+
+                        if (permission === 'granted') {
+                            permissionsStatus.notifications = true;
+                            console.log('✅ تم الحصول على إذن الإشعارات');
+
+                            // تفعيل جميع الإشعارات تلقائياً
+                            enableAllNotifications();
+                            
+                            // إرسال إشعار ترحيبي
+                            showWelcomeNotification();
+                        } else {
+                            console.log('❌ تم رفض إذن الإشعارات');
+                        }
+
+                        // حفظ حالة الإذن
+                        const permissions = JSON.parse(localStorage.getItem('app_permissions') || '{}');
+                        permissions.notifications = permission === 'granted';
+                        permissions.notifications_asked = true;
+                        localStorage.setItem('app_permissions', JSON.stringify(permissions));
+
+                    } else if (Notification.permission === 'granted') {
+                        permissionsStatus.notifications = true;
+                        console.log('✅ إذن الإشعارات متاح مسبقاً');
+                        
+                        // تفعيل جميع الإشعارات تلقائياً
+                        enableAllNotifications();
+                    }
+                }
+
+            } catch (error) {
+                console.error('خطأ في طلب الأذونات:', error);
+            }
+        }
+
+        // تحديث عرض الإحداثيات
+        function updateCoordinatesDisplay() {
+            if (userLocation) {
+                latitudeValue.textContent = userLocation.latitude.toFixed(6);
+                longitudeValue.textContent = userLocation.longitude.toFixed(6);
+                coordinatesContainer.style.display = 'block';
+            } else {
+                coordinatesContainer.style.display = 'none';
+            }
+        }
+
+        // إشعار ترحيبي
+        function showWelcomeNotification() {
+            if (permissionsStatus.notifications) {
+                const notification = new Notification('🌙 بوابة المسلم', {
+                    body: 'مرحباً بك! سنرسل لك إشعارات أوقات الصلاة والأذكار.',
+                    icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🌙</text></svg>',
+                    tag: 'welcome',
+                    requireInteraction: false
+                });
+
+                notification.onclick = function() {
+                    window.focus();
+                    notification.close();
+                };
+
+                // إغلاق الإشعار تلقائياً بعد 5 ثوان
+                setTimeout(() => {
+                    notification.close();
+                }, 5000);
+            }
+        }
+
+        // إرسال إشعار عام
+        function sendNotification(title, body, icon = '🌙', tag = 'general') {
+            if (permissionsStatus.notifications && Notification.permission === 'granted') {
+                const notification = new Notification(title, {
+                    body: body,
+                    icon: `data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>${icon}</text></svg>`,
+                    tag: tag,
+                    requireInteraction: false
+                });
+
+                notification.onclick = function() {
+                    window.focus();
+                    notification.close();
+                };
+
+                // إغلاق الإشعار تلقائياً بعد 8 ثوان
+                setTimeout(() => {
+                    notification.close();
+                }, 8000);
+
+                return notification;
+            }
+            return null;
         }
 
         // تهيئة التطبيق
@@ -1813,6 +1564,9 @@
             // إضافة مستمع لحدث التمرير
             window.addEventListener('scroll', handleScroll);
             
+            // تحميل الأذكار المخصصة
+            loadCustomAzkar();
+            
             console.log('✅ تم تهيئة التطبيق بنجاح مع تفعيل جميع الإشعارات');
         }
 
@@ -1820,6 +1574,7 @@
         function handleScroll() {
             const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
 
+            // إخفاء الرأس عند التمرير لأسفل وإظهاره عند التمرير لأعلى
             if (scrollTop > lastScrollTop && scrollTop > 100) {
                 if (!isHeaderHidden) {
                     mainHeader.classList.add('hidden');
@@ -1865,19 +1620,27 @@
 
             webSearchBtn.addEventListener('click', performWebSearch);
             searchHeaderInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') performWebSearch();
+                if (e.key === 'Enter') {
+                    performWebSearch();
+                }
             });
 
             document.addEventListener('click', (e) => {
-                if (e.target === notificationModal) notificationModal.style.display = 'none';
-                if (e.target === settingsModal) settingsModal.style.display = 'none';
+                if (e.target === notificationModal) {
+                    notificationModal.style.display = 'none';
+                }
+                if (e.target === settingsModal) {
+                    settingsModal.style.display = 'none';
+                }
             });
 
+            // زر تبديل الرأس
             toggleHeaderBtn.addEventListener('click', () => {
                 mainHeader.classList.toggle('hidden');
                 isHeaderHidden = mainHeader.classList.contains('hidden');
             });
 
+            // إضافة مستمعي أحداث لأزرار التحديد التلقائي
             document.addEventListener('click', function(e) {
                 if (e.target.id === 'prayer-location-auto' || e.target.closest('#prayer-location-auto')) {
                     getLocationForPrayer();
@@ -1888,106 +1651,174 @@
             });
         }
 
-        // طلب أذونات الموقع والإشعارات تلقائياً
-        async function requestPermissions() {
-            try {
-                // تفعيل الإشعارات افتراضياً
-                permissionsStatus.notifications = true;
-                enableAllNotifications();
-                
-                if ('geolocation' in navigator) {
-                    const savedPermissions = JSON.parse(localStorage.getItem('app_permissions') || '{}');
+        // أضف هذه الدوال الجديدة للحصول على الموقع
+        function getLocationForPrayer() {
+            if ('geolocation' in navigator) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        userLocation = {
+                            latitude: position.coords.latitude,
+                            longitude: position.coords.longitude
+                        };
 
-                    if (!savedPermissions.geolocation_asked) {
-                        navigator.geolocation.getCurrentPosition(
-                            (position) => {
-                                userLocation = {
-                                    latitude: position.coords.latitude,
-                                    longitude: position.coords.longitude
-                                };
-                                permissionsStatus.geolocation = true;
+                        // حفظ الموقع في localStorage
+                        const permissions = JSON.parse(localStorage.getItem('app_permissions') || '{}');
+                        permissions.geolocation = true;
+                        permissions.location_data = userLocation;
+                        localStorage.setItem('app_permissions', JSON.stringify(permissions));
 
-                                const permissions = JSON.parse(localStorage.getItem('app_permissions') || '{}');
-                                permissions.geolocation = true;
-                                permissions.geolocation_asked = true;
-                                permissions.location_data = userLocation;
-                                localStorage.setItem('app_permissions', JSON.stringify(permissions));
-
-                                console.log('✅ تم الحصول على إذن الموقع الجغرافي');
-                                updateCoordinatesDisplay();
-
-                                fetchPrayerTimes();
-                                fetchWeatherWithLocation();
-                            },
-                            (error) => {
-                                console.log('❌ تم رفض إذن الموقع الجغرافي:', error.message);
-
-                                const permissions = JSON.parse(localStorage.getItem('app_permissions') || '{}');
-                                permissions.geolocation = false;
-                                permissions.geolocation_asked = true;
-                                localStorage.setItem('app_permissions', JSON.stringify(permissions));
-
-                                fetchPrayerTimes();
-                                fetchWeather();
-                            },
-                            {
-                                enableHighAccuracy: true,
-                                timeout: 10000,
-                                maximumAge: 300000
-                            }
-                        );
-                    } else if (savedPermissions.geolocation && savedPermissions.location_data) {
-                        userLocation = savedPermissions.location_data;
-                        permissionsStatus.geolocation = true;
-                        updateCoordinatesDisplay();
-                        fetchPrayerTimes();
-                        fetchWeatherWithLocation();
-                    } else {
-                        fetchPrayerTimes();
-                        fetchWeather();
-                    }
-                }
-
-            } catch (error) {
-                console.error('خطأ في طلب الأذونات:', error);
-            }
-        }
-
-        // تحميل الإعدادات من localStorage
-        function loadSettings() {
-            const savedPrayerSettings = JSON.parse(localStorage.getItem('prayer_settings') || '{}');
-            if (savedPrayerSettings.method) {
-                DEFAULT_METHOD = parseInt(savedPrayerSettings.method);
-            }
-
-            // تفعيل جميع الإشعارات افتراضياً عند التحميل الأول
-            if (!localStorage.getItem('notifications_initialized')) {
-                enableAllNotifications();
-                localStorage.setItem('notifications_initialized', 'true');
-            }
-
-            console.log('✅ تم تحميل الإعدادات من localStorage');
-        }
-
-        // تهيئة التطبيق عند تحميل الصفحة
-        window.addEventListener('DOMContentLoaded', function() {
-            initApp();
-            
-            // تفعيل الإشعارات فور تحميل الصفحة
-            setTimeout(() => {
-                if ('Notification' in window && Notification.permission === 'default') {
-                    Notification.requestPermission().then(permission => {
-                        if (permission === 'granted') {
-                            console.log('✅ تم تفعيل إذن الإشعارات');
+                        // تحديث واجهة المستخدم
+                        if (document.getElementById('prayer-location')) {
+                            document.getElementById('prayer-location').value = "موقعك الحالي";
                         }
-                    });
-                }
-            }, 2000);
-        });
 
-        // ⚠️ ملاحظة: الدوال المتبقية (مثل saveNotificationSettings, saveServiceSettings, etc.)
-        // لم يتم تضمينها هنا للاختصار، لكنها موجودة في النسخة الأصلية من الكود
-        // يمكنك نسخها من الإصدار السابق
-    </script>
-</body>
-</html>
+                        // تحديث عرض الإحداثيات
+                        updateCoordinatesDisplay();
+
+                        // إعادة تحميل أوقات الصلاة
+                        fetchPrayerTimes();
+
+                        // إظهار رسالة نجاح
+                        alert('✅ تم تحديد موقعك بنجاح! سيتم استخدام موقعك الحالي لأوقات الصلاة.');
+                    },
+                    (error) => {
+                        console.error('Error getting location:', error);
+                        alert('❌ تعذر الحصول على موقعك. تأكد من تفعيل خدمة الموقع في متصفحك.');
+                    }
+                );
+            } else {
+                alert('❌ المتصفح لا يدعم خدمة الموقع.');
+            }
+        }
+
+        function getLocationForWeather() {
+            if ('geolocation' in navigator) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        userLocation = {
+                            latitude: position.coords.latitude,
+                            longitude: position.coords.longitude
+                        };
+
+                        // حفظ الموقع في localStorage
+                        const permissions = JSON.parse(localStorage.getItem('app_permissions') || '{}');
+                        permissions.geolocation = true;
+                        permissions.location_data = userLocation;
+                        localStorage.setItem('app_permissions', JSON.stringify(permissions));
+
+                        // تحديث واجهة المستخدم
+                        if (document.getElementById('weather-location')) {
+                            document.getElementById('weather-location').value = "موقعك الحالي";
+                        }
+
+                        // تحديث عرض الإحداثيات
+                        updateCoordinatesDisplay();
+
+                        // إعادة تحميل بيانات الطقس
+                        fetchWeatherWithLocation();
+
+                        // إظهار رسالة نجاح
+                        alert('✅ تم تحديد موقعك بنجاح! سيتم استخدام موقعك الحالي للطقس.');
+                    },
+                    (error) => {
+                        console.error('Error getting location:', error);
+                        alert('❌ تعذر الحصول على موقعك. تأكد من تفعيل خدمة الموقع في متصفحك.');
+                    }
+                );
+            } else {
+                alert('❌ المتصفح لا يدعم خدمة الموقع.');
+            }
+        }
+
+        // تحويل الأرقام المشرقية إلى عربية
+        function convertToArabicDigits(str) {
+            if (!str) return "";
+            const arabicToEnglishMap = {
+                '٠': '0', '١': '1', '٢': '2', '٣': '3', '٤': '4',
+                '٥': '5', '٦': '6', '٧': '7', '٨': '8', '٩': '9'
+            };
+
+            return str.replace(/[٠-٩]/g, digit => arabicToEnglishMap[digit] || digit);
+        }
+
+        // تحديث الوقت والتاريخ
+        function updateDateTime() {
+            const now = new Date();
+
+            // الوقت الحالي مع الأرقام العربية
+            const timeString = now.toLocaleTimeString('ar-SA', {
+                hour12: true,
+                hour: 'numeric',
+                minute: 'numeric',
+                second: 'numeric'
+            });
+
+            // تحويل الأرقام المشرقية إلى عربية
+            const arabicTime = convertToArabicDigits(timeString);
+            currentTimeElement.textContent = `⏰ ${arabicTime}`;
+
+            // تحديث الوقت في الشريط المدمج
+            if (compactTime) {
+                compactTime.textContent = arabicTime;
+            }
+
+            // لا تقم بتحديث التاريخ الميلادي هنا، فقط تأكد من أنه لا يزال مضبوطًا بشكل صحيح
+            if (window.lastGregorianDate && gregorianDateElement.textContent !== `📅 التاريخ الميلادي: ${window.lastGregorianDate}`) {
+                gregorianDateElement.innerHTML = `📅 التاريخ الميلادي: ${window.lastGregorianDate}`;
+            }
+        }
+
+        // جلب التاريخ الهجري
+        function fetchHijriDate() {
+            const currentDate = new Date();
+            const formattedDate = `${currentDate.getDate()}-${currentDate.getMonth() + 1}-${currentDate.getFullYear()}`;
+
+            fetch(`https://api.aladhan.com/v1/gToH/${formattedDate}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.code === 200) {
+                        const hijri = data.data.hijri;
+                        const formattedHijriDate = `${hijri.day} ${hijri.month.ar} ${hijri.year} هـ`;
+                        const arabicHijriDate = convertToArabicDigits(formattedHijriDate);
+                        hijriDateElement.innerHTML = `🗓 التاريخ الهجري: ${arabicHijriDate}<br>🌙 ${hijri.weekday.ar}`;
+
+                        // تحديث التاريخ الميلادي بشكل صحيح
+                        const gregorianDate = currentDate.toLocaleDateString('ar-MA', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                            weekday: 'long'
+                        });
+                        const arabicGregorianDate = convertToArabicDigits(gregorianDate);
+
+                        // استخدام innerHTML بدلاً من textContent للحفاظ على التنسيق
+                        gregorianDateElement.innerHTML = `📅 التاريخ الميلادي: ${arabicGregorianDate}`;
+
+                        // تخزين التاريخ الميلادي في متغير global لمنع الكتابة فوقه
+                        window.lastGregorianDate = arabicGregorianDate;
+                    } else {
+                        hijriDateElement.textContent = '❌ فشل في تحميل التاريخ الهجري';
+                        // في حالة الخطأ، قم بتعيين التاريخ الميلادي أيضًا
+                        setGregorianDate();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching hijri date:', error);
+                    // عرض تاريخ افتراضي في حالة الخطأ
+                    const today = new Date();
+                    const hijriDate = today.toLocaleDateString('ar-MA', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    });
+                    hijriDateElement.innerHTML = `🗓 التاريخ الهجري: ${convertToArabicDigits(hijriDate)}`;
+
+                    // تعيين التاريخ الميلادي في حالة الخطأ
+                    setGregorianDate();
+                });
+
+            // دالة مساعدة لتعيين التاريخ الميلادي
+            function setGregorianDate() {
+                const today = new Date();
+                const gregorianDate = today.toLocaleDateString('ar-MA', {
+                    year: 'numeric',
